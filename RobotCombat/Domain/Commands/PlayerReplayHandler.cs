@@ -5,7 +5,7 @@ namespace RobotCombat.Domain.Commands
 {
 
     /**
-     * Commande pour gérer la demande de rejouer d'un joueur.
+     * REPLAY Commande pour gérer la demande de rejouer d'un joueur.
      */
     public class PlayerReplayHandler(GameController controller, IGameView view) : ICommand
     {

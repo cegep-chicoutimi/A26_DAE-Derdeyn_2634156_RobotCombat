@@ -11,6 +11,9 @@ namespace RobotCombat.Domain.Communication
         private const string BusyMessage = "SERVER_BUSY";
         private ConnectionHandler? connection;
 
+        /**
+         * Envoie un message au serveur via le socket.
+         */
         public async Task Send(string message)
         {
             if (connection == null)
@@ -20,7 +23,9 @@ namespace RobotCombat.Domain.Communication
 
             await connection.SendMessage(message);
         }
-
+        /**
+         * Reçoit un message du serveur via le socket.
+         */
         public async Task<string?> Receive()
         {
             if (connection == null)
@@ -40,7 +45,9 @@ namespace RobotCombat.Domain.Communication
 
             return message;
         }
-
+        /**
+         * Ferme la connexion avec le serveur.
+         */
         public void Exit()
         {
             if (connection != null)
@@ -51,11 +58,18 @@ namespace RobotCombat.Domain.Communication
 
             Console.WriteLine("Client déconnecté.");
         }
-
+        /**
+         * Démarre la connexion avec le serveur.
+         */
         public Task Start() => ConnectToServer();
 
+        /**
+         * Vérifie si le client est connecté au serveur.
+         */
         public bool IsConnected() => connection?.IsConnected() ?? false;
-
+        /**
+         * Établit une connexion avec le serveur.
+         */
         private async Task ConnectToServer()
         {
             IPEndPoint remoteEndPoint = new(IPAddress.Parse(ipAddress), port);

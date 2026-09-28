@@ -1,36 +1,38 @@
 using RobotCombat.Domain.Communication.Transfer;
 using RobotCombat.Domain.Game;
-using System.Text.Json;
 
 namespace RobotCombat.Domain.Commands
 {
     /**
-     * Commande pour gérer la configuration du robot adverse.
+     * ROBOT Commande pour gérer la configuration du robot d'un joueur.
      */
     public class RobotReadyHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)
         {
-            RobotConfig? opponent = null;
-            try
+            if (controller.IsHost)
             {
-                opponent = JsonSerializer.Deserialize<RobotConfig>(message.Data, GameController.RobotConfigJsonOptions);
+                var config = ParseRobotConfig(message.Data);
+                _ = controller.HandleClientConfig(config);
             }
-            catch (JsonException)
-            { }
-
-            if (opponent == null || !opponent.IsValid())
+            else if (message.Data == "OK")
             {
-                view.ShowMessage("Configuration adverse invalide.");
-            }
-            else if (controller.IsHost)
-            {
-                controller.ConfigurePlayer(opponent);   // l'hôte reçoit la config du client
+                view.ShowMessage("Configuration verrouillée. En attente de l'adversaire…");
             }
             else
             {
-                controller.ConfigureHost(opponent);     // le client reçoit la config de l'hôte
+                view.ShowMessage("Message ROBOT inattendu.");
             }
         }
+        private static RobotConfig? ParseRobotConfig(string data)
+        {
+            string[] parts = (data ?? "").Split(';');
+            if (parts.Length != 3 || int.TryParse(parts[0], out int hp) || int.TryParse(parts[1], out int armor)|| int.TryParse(parts[2], out int damage))
+            {
+                return null;
+            }
+            return new RobotConfig { HpPoints = hp, ArmorPoints = armor, DamagePoints = damage };
+        }
     }
+
 }

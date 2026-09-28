@@ -48,6 +48,9 @@ namespace RobotCombat.Domain
          */
         public Boolean AskPlayerReplay();
 
+        /**
+         * Demander le port d'exécution de l'application de l'hôte
+         */
         public int AskHostPortInformation();
     }
 }

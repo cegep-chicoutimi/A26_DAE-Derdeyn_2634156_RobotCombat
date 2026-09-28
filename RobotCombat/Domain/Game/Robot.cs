@@ -102,7 +102,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * (Client) Recopie les PV et l'énergie envoyés par le serveur.
+         * Recopie les PV et l'énergie envoyés par le serveur.
          */
         public void ForceStat(int hp, int energy)
         {

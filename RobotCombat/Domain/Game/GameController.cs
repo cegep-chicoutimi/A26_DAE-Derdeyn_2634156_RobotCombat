@@ -1,7 +1,6 @@
 using RobotCombat.Domain.Commands;
 using RobotCombat.Domain.Communication;
 using RobotCombat.Domain.Communication.Transfer;
-using System.Text.Json;
 
 namespace RobotCombat.Domain.Game
 {
@@ -10,7 +9,6 @@ namespace RobotCombat.Domain.Game
      */
     public class GameController(bool isHost, Config config, IGameView view, CommandMenu menu, ISocket socket)
     {
-        public static readonly JsonSerializerOptions RobotConfigJsonOptions = new() { PropertyNameCaseInsensitive = true };
         public bool IsHost { get; } = isHost;
         private readonly Config config = config;
         private readonly IGameView view = view;
@@ -21,9 +19,6 @@ namespace RobotCombat.Domain.Game
         private RobotConfig? _hostRobotConfig;
         private RobotConfig? _playerRobotConfig;
 
-        /**
-         * Vrai quand c'est au tour du joueur local de jouer, faux sinon
-         */
         private bool localTurn;
 
         public Game? CurrentGame { get; private set; }
@@ -63,19 +58,37 @@ namespace RobotCombat.Domain.Game
         public async Task AskLocalConfig()
         {
             RobotConfig localConfig = view.AskPlayerConfig();
-            string json = JsonSerializer.Serialize(localConfig, RobotConfigJsonOptions);
 
             if (IsHost)
             {
-                // envoie de la config hôte avant
-                await Send(MessageType.ROBOT, null, json);
                 ConfigureHost(localConfig);
+                return;
             }
-            else
+
+            while (!localConfig.IsValid())
             {
-                ConfigurePlayer(localConfig);
-                await Send(MessageType.ROBOT, null, json);
+                view.ShowMessage("Il faut répartir exactement 10 points.");
+                localConfig = view.AskPlayerConfig();
             }
+
+            _playerRobotConfig = localConfig;
+            await Send(MessageType.ROBOT, null, $"{localConfig.HpPoints};{localConfig.ArmorPoints};{localConfig.DamagePoints}");
+        }
+
+        /**
+         * Configurer le robot du joueur et créer une nouvelle partie si les deux configurations sont disponibles.
+         */
+        public async Task HandleClientConfig(RobotConfig? robotConfig)
+        {
+           
+            if (robotConfig == null || !robotConfig.IsValid())
+            {
+                await Send(MessageType.ERROR, null, "INVALID_CONFIG");
+                return;
+            }
+
+            await Send(MessageType.ROBOT, null, "OK");
+            ConfigurePlayer(robotConfig);
         }
 
         /**
@@ -128,12 +141,10 @@ namespace RobotCombat.Domain.Game
                 CurrentGame = new Game(config, hostRobot, playerRobot);
                 localTurn = false;
 
-                if (IsHost)
-                {
-                    CurrentGame.StartGame();
-                    DisplayFight();
-                    _ = StartHostGameAsync();
-                }
+                // Seul le serveur crée la partie (le client ne connaît pas la config de l'hôte)
+                CurrentGame.StartGame();
+                DisplayFight();
+                _ = StartHostGameAsync();
             }
         }
 
@@ -161,7 +172,7 @@ namespace RobotCombat.Domain.Game
         public bool OpponentWantsReplay { get; private set; }
 
         /**
-         * L'adversaire a accepté de rejouer (message REPLAY reçu).
+         * L'adversaire a accepté de rejouer
          */
         public void OnOpponentReplay() => OpponentWantsReplay = true;
 
@@ -262,11 +273,9 @@ namespace RobotCombat.Domain.Game
          */
         public void ApplyServerStart(string data)
         {
-            if (CurrentGame == null)
-            {
-                view.ShowMessage("START reçu alors que la partie n'est pas prête.");
-                return;
-            }
+            var hostRobot = new Robot(true, new RobotConfig(), config);
+            var playerRobot = new Robot(false, _playerRobotConfig ?? new RobotConfig(), config);
+            CurrentGame = new Game(config, hostRobot, playerRobot);
 
             int[] state = ParseState(data.Split(';'), 0);
             CurrentGame.StartGame();
@@ -275,7 +284,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
+         * Annonce à qui est le tour de jouer
          */
         public void ApplyServerTurn(string data)
         {
@@ -298,6 +307,11 @@ namespace RobotCombat.Domain.Game
             {
                 view.ShowMessage("Énergie insuffisante : choisissez une autre action.");
                 localTurn = true;
+            }
+            else if (data == "INVALID_CONFIG")
+            {
+                view.ShowMessage("Il faut répartir exactement 10 points.");
+                _ = AskLocalConfig();
             }
             else
             {

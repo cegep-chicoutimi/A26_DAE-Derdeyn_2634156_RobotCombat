@@ -5,7 +5,7 @@
      */
     public record Config(
         int Port = 3000,
-        string IpAddress = "0.0.0.0", // inutile
+        string IpAddress = "192.168.2.173", // affichage uniquement
         int MaxPlayers = 1,
         int PointsToGive = 10,
         int BaseEnergy = 2,

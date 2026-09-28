@@ -10,7 +10,9 @@ namespace RobotCombat.Domain.Communication
         private ConnectionHandler? connection;
         private bool disposed = false;
         private  bool isClientConnected = false;
-
+        /**
+         *  Démarre le serveur et attend qu'un client se connecte.
+         */
         public async Task Start()
         {
             if (listener == null)

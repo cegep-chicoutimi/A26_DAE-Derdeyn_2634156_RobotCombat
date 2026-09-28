@@ -81,7 +81,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * (Client) Recopie l'état calculé par le serveur, sans aucun calcul de combat.
+         * Recopie l'état calculé par le serveur, sans aucun calcul de combat.
          */
         public void CopyState(int hpHost, int hpClient, int energyHost, int energyClient)
         {

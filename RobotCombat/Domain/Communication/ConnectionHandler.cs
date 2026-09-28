@@ -12,7 +12,13 @@ namespace RobotCombat.Domain.Communication
         private const string Eom = "<|EOM|>";
         private bool stopped = false;
 
+        /**
+         * Vérifie si la connexion est toujours active
+         */
         public bool IsConnected() => !stopped && socket.Connected;
+        /**
+         * Envoie un message au serveur, en ajoutant le marqueur de fin de message (EOM)
+         */
 
         public async Task SendMessage(string message)
         {

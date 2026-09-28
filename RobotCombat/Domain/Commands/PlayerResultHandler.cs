@@ -4,7 +4,7 @@ using RobotCombat.Domain.Game;
 namespace RobotCombat.Domain.Commands
 {
     /**
-     * Messages envoyés par le SERVEUR au client pendant le combat (START, TURN, RESULT, ERROR).
+     * RESULT Commande pour gérer les résultats des actions du joueur.
      */
     public class PlayerResultHandler(GameController controller, IGameView view) : ICommand
     {
