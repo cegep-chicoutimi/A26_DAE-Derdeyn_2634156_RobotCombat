@@ -1,19 +1,38 @@
-﻿using RobotCombat.Domain.Communication.Transfer;
+using RobotCombat.Domain.Communication.Transfer;
 using RobotCombat.Domain.Game;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RobotCombat.Domain.Commands
 {
     /**
-     * Commande pour gérer le résultat d'une action du joueur.
+     * Messages envoyés par le SERVEUR au client pendant le combat (START, TURN, RESULT, ERROR).
      */
-    public class PlayerResultHandler(IGameView view) : ICommand
+    public class PlayerResultHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)
         {
-            view.ShowMessage($"Confirmation de l'adversaire : {message.Data} dégâts.");
+            if (controller.IsHost)
+            {
+                return; // le serveur ne doit jamais recevoir ces messages
+            }
+
+            switch (message.MessageType)
+            {
+                case MessageType.START:
+                    controller.ApplyServerStart(message.Data);
+                    break;
+                case MessageType.TURN:
+                    controller.ApplyServerTurn(message.Data);
+                    break;
+                case MessageType.ERROR:
+                    controller.ApplyServerError(message.Data);
+                    break;
+                case MessageType.RESULT when message.Action.HasValue:
+                    controller.ApplyServerResult(message.Action.Value, message.Data);
+                    break;
+                default:
+                    view.ShowMessage($"Message du serveur invalide : {message.MessageType}");
+                    break;
+            }
         }
     }
 }

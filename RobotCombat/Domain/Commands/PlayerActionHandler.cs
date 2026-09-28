@@ -4,30 +4,23 @@ using RobotCombat.Domain.Game;
 namespace RobotCombat.Domain.Commands
 {
     /**
-     * ACTION (reçu par le client) : l'adversaire a joué un coup.
-     * Le client applique l'action reçue à son robot et affiche le résultat.
+     * ACTION (reçu par le SERVEUR hôte) : le client a choisi une action.
      */
     public class PlayerActionHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)
         {
-            var game = controller.CurrentGame;
-
-            if (game == null || !message.Action.HasValue || game.Status != GameStatus.PLAYING)
+            if (!controller.IsHost)
             {
-                view.ShowMessage("Action reçue invalide ou hors partie.");
+                view.ShowMessage("Message ACTION ignoré : seul le serveur résout les actions.");
             }
-            else if (controller.IsLocalTurn)
+            else if (!message.Action.HasValue)
             {
-                // Action de l'adversaire reçue hors de son tour : ignorée
-                view.ShowMessage("Action de l'adversaire reçue hors de son tour : ignorée.");
+                _ = controller.Send(MessageType.ERROR, null, "INVALID_ACTION");
             }
             else
             {
-                int result = game.ApplyAction(message.Action.Value);
-                controller.DisplayFight();
-                view.ShowMessage($"Action de l'adversaire > {GameActionCompanion.ResultOfAction(message.Action.Value, result)}");
-                controller.ShowWinnerIfEnded();
+                _ = controller.HandleClientActionAsync(message.Action.Value);
             }
         }
     }

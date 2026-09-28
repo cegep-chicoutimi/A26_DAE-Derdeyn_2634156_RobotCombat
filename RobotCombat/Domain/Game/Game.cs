@@ -81,6 +81,20 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
+         * (Client) Recopie l'état calculé par le serveur, sans aucun calcul de combat.
+         */
+        public void CopyState(int hpHost, int hpClient, int energyHost, int energyClient)
+        {
+            robots[0].ForceStat(hpHost, energyHost);
+            robots[1].ForceStat(hpClient, energyClient);
+
+            if (CheckGameEnded())
+            {
+                status = GameStatus.END_GAME;
+            }
+        }
+
+        /**
          * Vérifie si la partie est terminée (si un des robots est détruit).
          * @return true si la partie est terminée, false sinon.
          */

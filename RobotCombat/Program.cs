@@ -34,7 +34,12 @@ do
     commandMenu.AddHandler(MessageType.WELCOME, new PlayerJoinHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ROBOT, new RobotReadyHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ACTION, new PlayerActionHandler(gameController, consoleGameView));
-    commandMenu.AddHandler(MessageType.RESULT, new PlayerResultHandler(consoleGameView));
+    commandMenu.AddHandler(MessageType.START, new StartHandler(consoleGameView));
+    var serverMessageHandler = new PlayerResultHandler(gameController, consoleGameView);
+    commandMenu.AddHandler(MessageType.START, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.TURN, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.RESULT, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.ERROR, serverMessageHandler);
     commandMenu.AddHandler(MessageType.REPLAY, new PlayerReplayHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.QUIT, new QuitHandler(gameController, consoleGameView));
 
@@ -60,26 +65,18 @@ do
         do
         {
             replay = false;
-            bool waitingMessageShown = false;
 
+            // Le tour local est débloqué par le serveur
             while (gameController.GetGameStatus() == GameStatus.PLAYING && !listenTask.IsCompleted)
             {
                 if (gameController.IsLocalTurn)
                 {
-                    waitingMessageShown = false;
                     var action = consoleGameView.AskPlayerAction();
-
-                   
                     await gameController.ExecuteActionAsync(action);
                 }
                 else
                 {
-                    if (!waitingMessageShown)
-                    {
-                        consoleGameView.ShowMessage("En attente de l'action de l'adversaire...");
-                        waitingMessageShown = true;
-                    }
-                    await Task.Delay(300);
+                    await Task.Delay(200);
                 }
             }
 

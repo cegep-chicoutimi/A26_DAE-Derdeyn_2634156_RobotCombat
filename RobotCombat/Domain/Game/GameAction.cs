@@ -43,7 +43,6 @@ namespace RobotCombat.Domain.Game
          */
         public static string ResultOfAction(this GameAction action, int result)
         {
-            Console.WriteLine("debug " + result);
             return action switch
             {
                 GameAction.ATTACK => $"Dégâts infligés : {result}",

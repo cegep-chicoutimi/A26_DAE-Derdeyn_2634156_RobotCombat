@@ -1,7 +1,6 @@
 using RobotCombat.Domain.Commands;
 using RobotCombat.Domain.Communication;
 using RobotCombat.Domain.Communication.Transfer;
-using System.Net.Sockets;
 using System.Text.Json;
 
 namespace RobotCombat.Domain.Game
@@ -21,9 +20,15 @@ namespace RobotCombat.Domain.Game
         private readonly object sync = new();
         private RobotConfig? _hostRobotConfig;
         private RobotConfig? _playerRobotConfig;
+
+        /**
+         * Vrai quand c'est au tour du joueur local de jouer, faux sinon
+         */
+        private volatile bool localTurn;
+
         public Game? CurrentGame { get; private set; }
 
-        public bool IsLocalTurn => CurrentGame != null && CurrentGame.CurrentRobot.IsHost == IsHost;
+        public bool IsLocalTurn => localTurn && GetGameStatus() == GameStatus.PLAYING;
 
         public GameStatus GetGameStatus() => CurrentGame?.Status ?? GameStatus.WAITING_FOR_PLAYER;
 
@@ -32,7 +37,6 @@ namespace RobotCombat.Domain.Game
          */
         public async Task StartGame()
         {
-            // démarre le socket et envoyer un msg bienvenue
             if (!socket.IsConnected())
             {
                 await socket.Start();
@@ -59,18 +63,21 @@ namespace RobotCombat.Domain.Game
         public async Task AskLocalConfig()
         {
             RobotConfig localConfig = view.AskPlayerConfig();
+            string json = JsonSerializer.Serialize(localConfig, RobotConfigJsonOptions);
 
             if (IsHost)
             {
+                // envoie de la config hôte avant
+                await Send(MessageType.ROBOT, null, json);
                 ConfigureHost(localConfig);
             }
             else
             {
                 ConfigurePlayer(localConfig);
+                await Send(MessageType.ROBOT, null, json);
             }
-
-            await Send(MessageType.ROBOT, null, JsonSerializer.Serialize(localConfig, RobotConfigJsonOptions));
         }
+
         /**
          * Configure le robot de l'hôte et crée une nouvelle partie si les deux configurations sont disponibles.
          */
@@ -98,9 +105,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * Si la partie précédente est terminée, on repart de zéro.
-         * Appelée aussi à la réception d'une config : si l'adversaire a répondu « rejouer »
-         * plus vite que nous, sa nouvelle config est gardée au lieu d'être effacée.
+         * Réinitialise la partie si elle est terminée
          */
         private void ResetIfEnded()
         {
@@ -109,11 +114,12 @@ namespace RobotCombat.Domain.Game
                 CurrentGame = null;
                 _hostRobotConfig = null;
                 _playerRobotConfig = null;
+                localTurn = false;
             }
         }
 
         /**
-         * Crée une nouvelle partie si les deux configurations sont disponibles.
+         * Crée une nouvelle partie si les deux configurations sont disponibles
          */
         public void CreateGame()
         {
@@ -123,19 +129,28 @@ namespace RobotCombat.Domain.Game
                 var playerRobot = new Robot(false, _playerRobotConfig, config);
 
                 CurrentGame = new Game(config, hostRobot, playerRobot);
-                CurrentGame.StartGame();
-                DisplayFight();
-                var hostRobotEnergy = CurrentGame.robots[0].GetStats(StatsType.ENERGY);
-                var playerRobotEnergy = CurrentGame.robots[1].GetStats(StatsType.ENERGY);
-                var hostHp = CurrentGame.robots[0].GetStats(StatsType.HP);
-                var playerHp = CurrentGame.robots[1].GetStats(StatsType.HP);
-                Send(MessageType.START, null, $"{hostRobotEnergy},{playerRobotEnergy},{hostHp},{playerHp}");
+                localTurn = false;
+
+                if (IsHost)
+                {
+                    CurrentGame.StartGame();
+                    DisplayFight();
+                    _ = StartHostGameAsync();
+                }
             }
         }
 
         /**
-         * Nouvelle partie sur la même connexion : remise à zéro puis
-         * nouvelle configuration demandée et envoyée, pour l'hôte ET pour le client.
+         * Envoie un message START
+         */
+        private async Task StartHostGameAsync()
+        {
+            await Send(MessageType.START, null, BuildStateData());
+            await SendTurnAsync();
+        }
+
+        /**
+         * Nouvelle partie sur la même connexion
          */
         public async Task Replay()
         {
@@ -147,36 +162,187 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * Exécute l'action du joueur local si c'est son tour, applique l'action au jeu et envoie le résultat à l'adversaire.
+         * Action choisie par le joueur LOCAL
          */
         public async Task ExecuteActionAsync(GameAction action)
         {
-            if (!IsLocalTurn)
-            {
-                view.ShowMessage("Ce n'est pas votre tour.");
-                return;
-            }
-
             if (CurrentGame == null)
             {
                 view.ShowMessage("Le jeu n'a pas encore commencé.");
                 return;
             }
 
-            int result = CurrentGame.ApplyAction(action);
-
-            while (result == -1)
+            if (!IsLocalTurn)
             {
-                view.ShowMessage("Énergie insuffisante, choissez une autre action.");
-                action = view.AskPlayerAction();
-                result = CurrentGame.ApplyAction(action);
+                view.ShowMessage("Ce n'est pas votre tour.");
+                return;
             }
 
-            await Send(MessageType.ACTION, action, result.ToString());
+            localTurn = false;
+
+            if (!IsHost)
+            {
+                await Send(MessageType.ACTION, action, "");
+                view.ShowMessage("Action envoyée, en attente du serveur...");
+                return;
+            }
+
+            while (!await ResolveActionAsync(action))
+            {
+                view.ShowMessage("Énergie insuffisante : choisissez une autre action.");
+                action = view.AskPlayerAction();
+            }
+        }
+
+        /**
+         *  Action reçue du client
+         */
+        public async Task HandleClientActionAsync(GameAction action)
+        {
+            if (!IsHost || CurrentGame == null || CurrentGame.Status != GameStatus.PLAYING || CurrentGame.CurrentRobot.IsHost)
+            {
+                await Send(MessageType.ERROR, action, "NOT_YOUR_TURN");
+                return;
+            }
+
+            if (!await ResolveActionAsync(action))
+            {
+                await Send(MessageType.ERROR, action, "INVALID_ACTION");
+            }
+        }
+
+        /**
+         * Résolution d'une action, exécutée par le serveur pour les 2 joueurs.
+         */
+        private async Task<bool> ResolveActionAsync(GameAction action)
+        {
+            Game game = CurrentGame!;
+            bool hostActed = game.CurrentRobot.IsHost;
+
+            int damage = game.ApplyAction(action);
+            if (damage == -1)
+            {
+                return false;
+            }
+
+            await Send(MessageType.RESULT, action, $"{TurnName(hostActed)};{damage};{BuildStateData()}");
+            ShowActionResult(hostActed, action, damage);
+
+            if (game.Status == GameStatus.PLAYING)
+            {
+                await SendTurnAsync();
+            }
+            return true;
+        }
+
+        /**
+         * Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
+         */
+        private async Task SendTurnAsync()
+        {
+            bool hostTurn = CurrentGame!.CurrentRobot.IsHost;
+            await Send(MessageType.TURN, null, TurnName(hostTurn));
+
+            if (hostTurn)
+            {
+                localTurn = true;   // débloque la saisie de l'hôte
+            }
+            else
+            {
+                view.ShowMessage("Tour de l'adversaire…");
+            }
+        }
+
+        /**
+         * Démarre la partie avec l'état envoyé par le serveur.
+         */
+        public void ApplyServerStart(string data)
+        {
+            if (CurrentGame == null)
+            {
+                view.ShowMessage("START reçu alors que la partie n'est pas prête.");
+                return;
+            }
+
+            int[] state = ParseState(data.Split(';'), 0);
+            CurrentGame.StartGame();
+            CurrentGame.CopyState(state[0], state[1], state[2], state[3]);
             DisplayFight();
-            view.ShowMessage($"Votre action > {GameActionCompanion.ResultOfAction(action, result)}");
+        }
+
+        public void ApplyServerTurn(string data)
+        {
+            if (data == TurnName(false))
+            {
+                localTurn = true;
+            }
+            else
+            {
+                view.ShowMessage("Tour de l'adversaire…");
+            }
+        }
+
+        /**
+         * Action refusée par le serveur, le tour n'est pas consommé.
+         */
+        public void ApplyServerError(string data)
+        {
+            if (data == "INVALID_ACTION")
+            {
+                view.ShowMessage("Énergie insuffisante : choisissez une autre action.");
+                localTurn = true;
+            }
+            else
+            {
+                view.ShowMessage($"Erreur du serveur : {data}");
+            }
+        }
+
+        /**
+         * Recopier les stats du combat envoyées par le serveur et afficher le résultat de l'action.
+         */
+        public void ApplyServerResult(GameAction action, string data)
+        {
+            if (CurrentGame == null)
+            {
+                return;
+            }
+
+            string[] parts = data.Split(';');
+            bool hostActed = parts[0] == TurnName(true);
+            int damage = int.Parse(parts[1]);
+            int[] state = ParseState(parts, 2);
+
+            CurrentGame.CopyState(state[0], state[1], state[2], state[3]);
+            ShowActionResult(hostActed, action, damage);
+        }
+
+        /**
+         * Affiche le combat et le résultat d'une action, puis le gagnant si la partie est finie.
+         */
+        private void ShowActionResult(bool hostActed, GameAction action, int damage)
+        {
+            bool isMine = hostActed == IsHost;
+            DisplayFight();
+            view.ShowMessage($"{(isMine ? "Votre action" : "Action de l'adversaire")} > {action.ResultOfAction(damage)}");
             ShowWinnerIfEnded();
         }
+
+        /**
+         * État de la partie au format {pvHote};{pvClient};{energieHote};{energieClient}.
+         */
+        private string BuildStateData()
+        {
+            Robot host = CurrentGame!.robots[0];
+            Robot client = CurrentGame.robots[1];
+            return $"{host.GetStats(StatsType.HP)};{client.GetStats(StatsType.HP)};" +
+                   $"{host.GetStats(StatsType.ENERGY)};{client.GetStats(StatsType.ENERGY)}";
+        }
+
+        private static int[] ParseState(string[] parts, int offset) =>
+            [int.Parse(parts[offset]), int.Parse(parts[offset + 1]), int.Parse(parts[offset + 2]), int.Parse(parts[offset + 3])];
+
+        private static string TurnName(bool host) => host ? "HOTE" : "CLIENT";
 
         /**
          * Affiche le gagnant si la partie est terminée.
@@ -185,13 +351,14 @@ namespace RobotCombat.Domain.Game
         {
             if (CurrentGame != null && CurrentGame.Status == GameStatus.END_GAME)
             {
-                if(CurrentGame.GetWinner() != null)
+                Robot? winner = CurrentGame.GetWinner();
+                if (winner != null)
                 {
-                    view.ShowWinner(CurrentGame.GetWinner());
+                    view.ShowWinner(winner);
                 }
-             
             }
         }
+
         /**
          * Affiche les statistiques du combat entre les deux robots.
          */
@@ -207,8 +374,6 @@ namespace RobotCombat.Domain.Game
 
         /**
          * Envoie un message à l'adversaire
-         * 
-         * 
          */
         public Task Send(MessageType type, GameAction? action, string data) =>
             socket.Send(MessageHelper.BuildMessage(type, action, GetGameStatus(), data));

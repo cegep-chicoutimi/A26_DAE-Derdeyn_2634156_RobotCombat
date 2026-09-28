@@ -88,7 +88,7 @@ namespace RobotCombat.Domain.Game
 
             int actualDamage = Math.Max(1, damage - mitigation);
             GetStat(StatsType.HP).Decrease(actualDamage);
-
+            ResetDefend(); 
             return actualDamage;
         }
         /**
@@ -99,6 +99,15 @@ namespace RobotCombat.Domain.Game
         public string GetStats(StatsType type)
         {
             return GetStat(type).CurrentValue.ToString();
+        }
+
+        /**
+         * (Client) Recopie les PV et l'énergie envoyés par le serveur.
+         */
+        public void ForceStat(int hp, int energy)
+        {
+            GetStat(StatsType.HP).CurrentValue = hp;
+            GetStat(StatsType.ENERGY).CurrentValue = energy;
         }
 
         private void ResetRecharge()
