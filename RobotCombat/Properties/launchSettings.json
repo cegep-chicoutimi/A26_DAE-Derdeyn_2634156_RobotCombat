@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RobotCombat": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

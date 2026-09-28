@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Double" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="../RobotCombatTest/RobotCombatTest.csproj" Id="6d843f09-e8d0-48f9-b2fc-be0ffcd17286">
+    <BuildType Solution="Double|*" Project="Release" />
+  </Project>
+  <Project Path="RobotCombat.csproj" />
+</Solution>
