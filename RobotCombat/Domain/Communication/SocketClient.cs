@@ -56,7 +56,6 @@ namespace RobotCombat.Domain.Communication
                 connection = null;
             }
 
-            Console.WriteLine("Client déconnecté.");
         }
         /**
          * Démarre la connexion avec le serveur.

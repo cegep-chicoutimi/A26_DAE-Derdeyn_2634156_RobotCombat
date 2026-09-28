@@ -27,7 +27,6 @@ namespace RobotCombat.Domain.Communication
         public void StartServer()
         {
             IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.Any, port);
-            Console.WriteLine($"Démarrage du serveur sur le port {port} avec l'ip {ip}");
 
             listener = new Socket(localIPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listener.Bind(localIPEndPoint);
@@ -35,8 +34,6 @@ namespace RobotCombat.Domain.Communication
 
             isRunning = true;
             disposed = false;
-
-            Console.WriteLine("Serveur en attente de connexion...");
         }
 
         /**
