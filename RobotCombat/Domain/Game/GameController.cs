@@ -15,7 +15,6 @@ namespace RobotCombat.Domain.Game
         private readonly CommandMenu menu = menu;
         private readonly ISocket socket = socket;
 
-        private readonly object sync = new();
         private RobotConfig? _hostRobotConfig;
         private RobotConfig? _playerRobotConfig;
 
@@ -80,7 +79,7 @@ namespace RobotCombat.Domain.Game
          */
         public async Task HandleClientConfig(RobotConfig? robotConfig)
         {
-           
+
             if (robotConfig == null || !robotConfig.IsValid())
             {
                 await Send(MessageType.ERROR, null, "INVALID_CONFIG");
@@ -144,17 +143,17 @@ namespace RobotCombat.Domain.Game
                 // Seul le serveur crée la partie (le client ne connaît pas la config de l'hôte)
                 CurrentGame.StartGame();
                 DisplayFight();
-                _ = StartHostGameAsync();
+                _ = StartHostGame();
             }
         }
 
         /**
          * Envoie un message START
          */
-        private async Task StartHostGameAsync()
+        private async Task StartHostGame()
         {
             await Send(MessageType.START, null, BuildStateData());
-            await SendTurnAsync();
+            await SendTurn();
         }
 
         /**
@@ -202,7 +201,7 @@ namespace RobotCombat.Domain.Game
                 return;
             }
 
-            while (!await ResolveActionAsync(action))
+            while (!await ResolveAction(action))
             {
                 view.ShowMessage("Énergie insuffisante : choisissez une autre action.");
                 action = view.AskPlayerAction();
@@ -220,7 +219,7 @@ namespace RobotCombat.Domain.Game
                 return;
             }
 
-            if (!await ResolveActionAsync(action))
+            if (!await ResolveAction(action))
             {
                 await Send(MessageType.ERROR, action, "INVALID_ACTION");
             }
@@ -229,7 +228,7 @@ namespace RobotCombat.Domain.Game
         /**
          * Résolution d'une action, exécutée par le serveur pour les 2 joueurs.
          */
-        private async Task<bool> ResolveActionAsync(GameAction action)
+        private async Task<bool> ResolveAction(GameAction action)
         {
             Game game = CurrentGame!;
             bool hostActed = game.CurrentRobot.IsHost;
@@ -245,7 +244,7 @@ namespace RobotCombat.Domain.Game
 
             if (game.Status == GameStatus.PLAYING)
             {
-                await SendTurnAsync();
+                await SendTurn();
             }
             return true;
         }
@@ -253,7 +252,7 @@ namespace RobotCombat.Domain.Game
         /**
          * Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
          */
-        private async Task SendTurnAsync()
+        private async Task SendTurn()
         {
             bool hostTurn = CurrentGame!.CurrentRobot.IsHost;
             await Send(MessageType.TURN, null, TurnName(hostTurn));
@@ -387,8 +386,8 @@ namespace RobotCombat.Domain.Game
         {
             if (CurrentGame != null)
             {
-                var local = IsHost ? CurrentGame.robots[0] : CurrentGame.robots[1];
-                var remote = IsHost ? CurrentGame.robots[1] : CurrentGame.robots[0];
+                var local = IsHost ? CurrentGame.robots.First() : CurrentGame.robots.Last();
+                var remote = IsHost ? CurrentGame.robots.Last() : CurrentGame.robots.First();
                 view.DisplayFight(local, remote);
             }
         }
