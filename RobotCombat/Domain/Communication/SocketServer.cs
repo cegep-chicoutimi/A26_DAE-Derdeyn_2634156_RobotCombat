@@ -32,6 +32,7 @@ namespace RobotCombat.Domain.Communication
             listener.Listen(100);
 
             isRunning = true;
+            disposed = false;
 
             Console.WriteLine("Serveur en attente de connexion...");
         }

@@ -24,7 +24,7 @@ namespace RobotCombat.Domain.Game
         /**
          * Vrai quand c'est au tour du joueur local de jouer, faux sinon
          */
-        private volatile bool localTurn;
+        private bool localTurn;
 
         public Game? CurrentGame { get; private set; }
 
@@ -154,12 +154,20 @@ namespace RobotCombat.Domain.Game
          */
         public async Task Replay()
         {
+            OpponentWantsReplay = false;
             lock (sync)
             {
                 ResetIfEnded();
             }
             await AskLocalConfig();
         }
+
+        public bool OpponentWantsReplay { get; private set; }
+
+        /**
+         * L'adversaire a accepté de rejouer (message REPLAY reçu).
+         */
+        public void OnOpponentReplay() => OpponentWantsReplay = true;
 
         /**
          * Action choisie par le joueur LOCAL
@@ -245,7 +253,7 @@ namespace RobotCombat.Domain.Game
 
             if (hostTurn)
             {
-                localTurn = true;   // débloque la saisie de l'hôte
+                localTurn = true;
             }
             else
             {
@@ -270,6 +278,9 @@ namespace RobotCombat.Domain.Game
             DisplayFight();
         }
 
+        /**
+         * Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
+         */
         public void ApplyServerTurn(string data)
         {
             if (data == TurnName(false))
@@ -318,7 +329,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * Affiche le combat et le résultat d'une action, puis le gagnant si la partie est finie.
+         * Affiche le combat et le résultat d'une action et le gagnant si la partie est finie.
          */
         private void ShowActionResult(bool hostActed, GameAction action, int damage)
         {
@@ -329,7 +340,7 @@ namespace RobotCombat.Domain.Game
         }
 
         /**
-         * État de la partie au format {pvHote};{pvClient};{energieHote};{energieClient}.
+         * État de la partie
          */
         private string BuildStateData()
         {
@@ -378,6 +389,9 @@ namespace RobotCombat.Domain.Game
         public Task Send(MessageType type, GameAction? action, string data) =>
             socket.Send(MessageHelper.BuildMessage(type, action, GetGameStatus(), data));
 
+        /**
+         * Écoute les messages entrants du socket et les traite.
+         */
         public async Task Listen()
         {
             string? raw;
@@ -386,7 +400,9 @@ namespace RobotCombat.Domain.Game
                 OnMessageReceived(MessageHelper.ParseMessage(raw));
             }
         }
-
+        /**
+         * Traite un message reçu du socket.
+         */
         private void OnMessageReceived(Message message) => menu.Execute(message);
     }
 }

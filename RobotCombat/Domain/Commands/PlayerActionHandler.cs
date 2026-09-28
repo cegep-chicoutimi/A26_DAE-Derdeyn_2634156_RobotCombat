@@ -4,7 +4,7 @@ using RobotCombat.Domain.Game;
 namespace RobotCombat.Domain.Commands
 {
     /**
-     * ACTION (reçu par le SERVEUR hôte) : le client a choisi une action.
+     * ACTION : le client a choisi une action.
      */
     public class PlayerActionHandler(GameController controller, IGameView view) : ICommand
     {

@@ -34,7 +34,6 @@ do
     commandMenu.AddHandler(MessageType.WELCOME, new PlayerJoinHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ROBOT, new RobotReadyHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ACTION, new PlayerActionHandler(gameController, consoleGameView));
-    commandMenu.AddHandler(MessageType.START, new StartHandler(consoleGameView));
     var serverMessageHandler = new PlayerResultHandler(gameController, consoleGameView);
     commandMenu.AddHandler(MessageType.START, serverMessageHandler);
     commandMenu.AddHandler(MessageType.TURN, serverMessageHandler);
@@ -50,12 +49,13 @@ do
         var listenTask = gameController.Listen();
 
 
-
+        // En attente du lancement de la partie
         while (gameController.GetGameStatus() != GameStatus.PLAYING && !listenTask.IsCompleted)
         {
             await Task.Delay(200);
         }
 
+        // Si la tâche d'écoute a échoué, afficher le message d'erreur
         if (listenTask.IsFaulted)
         {
             consoleGameView.ShowMessage($"Erreur d'écoute : {listenTask.Exception?.InnerException?.Message}");
@@ -66,32 +66,65 @@ do
         {
             replay = false;
 
-            // Le tour local est débloqué par le serveur
+            // Partie en cours
             while (gameController.GetGameStatus() == GameStatus.PLAYING && !listenTask.IsCompleted)
             {
                 if (gameController.IsLocalTurn)
-                {
+                { // Tour du joueur local
                     var action = consoleGameView.AskPlayerAction();
                     await gameController.ExecuteActionAsync(action);
                 }
                 else
-                {
+                { // attente adversaire
                     await Task.Delay(200);
                 }
             }
 
+            // Fin de partie
             if (gameController.GetGameStatus() == GameStatus.END_GAME && !listenTask.IsCompleted)
             {
-                replay = consoleGameView.AskPlayerReplay();
+                if (isHost)
+                {
+                    consoleGameView.ShowMessage("En attente de la revanche du joueur...");
+                    while (!gameController.OpponentWantsReplay && !listenTask.IsCompleted)
+                    { // Attente décision du joueur pour rejouer une partie
+                        await Task.Delay(200);
+                    }
 
-                if (listenTask.IsCompleted)
-                {
-                    consoleGameView.ShowMessage("L'adversaire a quitté, impossible de rejouer.");
-                    replay = false;
+                    // Le client a refusé de rejouer ou s'est déconnecté
+                    replay = !listenTask.IsCompleted;
+
+                    if (replay)
+                    {
+                        await gameController.Send(MessageType.REPLAY, null, "");
+                    }
                 }
-                else if (replay)
+                else
                 {
-                    await gameController.Send(MessageType.REPLAY, null, "");
+                    // demander au joueur s'il souhaite rejouer
+                    replay = consoleGameView.AskPlayerReplay();
+
+                    if (listenTask.IsCompleted)
+                    { // erreur l hôte s'est déconnecté
+                        consoleGameView.ShowMessage("L'hôte a quitté, impossible de rejouer.");
+                        replay = false;
+                    }
+                    else if (replay)
+                    {
+                        await gameController.Send(MessageType.REPLAY, null, "");
+                        
+                        // attente réponse de l'hôte
+                        while (!gameController.OpponentWantsReplay && !listenTask.IsCompleted)
+                        {
+                            await Task.Delay(200);
+                        }
+                        replay = !listenTask.IsCompleted;
+                    }
+                }
+
+                if (replay)
+                {
+                    // redémarrer une partie
                     await gameController.Replay();
 
                     consoleGameView.ShowMessage("En attente de la configuration de l'adversaire...");
@@ -102,7 +135,7 @@ do
 
                     if (listenTask.IsCompleted)
                     {
-                        consoleGameView.ShowMessage("L'adversaire ne rejoue pas. Fin de la partie.");
+                        consoleGameView.ShowMessage("L'adversaire a quitté. Fin de la partie.");
                         replay = false;
                     }
                 }
@@ -112,6 +145,11 @@ do
         if (!listenTask.IsCompleted)
         {
             await gameController.Send(MessageType.QUIT, null, "");
+        }
+
+        if (isHost && await Task.WhenAny(listenTask, Task.Delay(3000)) != listenTask)
+        {
+            gameController.Disconnect();
         }
     }
     catch (Exception ex)

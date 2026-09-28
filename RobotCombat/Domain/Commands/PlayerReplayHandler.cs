@@ -12,6 +12,7 @@ namespace RobotCombat.Domain.Commands
         public void Handle(Message message)
         {
             view.ShowMessage("L'adversaire souhaite rejouer une partie.");
+            controller.OnOpponentReplay();
         }
     }
 }
