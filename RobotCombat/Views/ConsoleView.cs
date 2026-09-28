@@ -113,7 +113,8 @@ namespace RobotCombat.Views
                             DisplayRobotConfig(robotConfig);
                         }
                         break;
-                    default: Console.WriteLine("Choix invalide."); break;
+                    default: Console.WriteLine("Choix invalide.");
+                        break;
                 }
             } while (!isConfigConfirmed);
             Console.Clear();

@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="RobotCombat.Domain.Commands.CommandMenu">
+    <Position X="12.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAABAAABAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\CommandMenu.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.PlayerActionHandler" BaseTypeListCollapsed="true">
+    <Position X="6.25" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\PlayerActionHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.PlayerJoinHandler" BaseTypeListCollapsed="true">
+    <Position X="8" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\PlayerJoinHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.PlayerLeaveHandler" BaseTypeListCollapsed="true">
+    <Position X="4.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\PlayerLeaveHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.PlayerReplayHandler" BaseTypeListCollapsed="true">
+    <Position X="2.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\PlayerReplayHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.PlayerResultHandler" BaseTypeListCollapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\PlayerResultHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.QuitHandler" BaseTypeListCollapsed="true">
+    <Position X="6.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\QuitHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.RobotReadyHandler" BaseTypeListCollapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\RobotReadyHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Commands.StartHandler" BaseTypeListCollapsed="true">
+    <Position X="8" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Commands\StartHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Communication.Transfer.MessageHelper">
+    <Position X="2.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAgAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Communication\Transfer\MessageHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Communication.Transfer.SerializeException" Collapsed="true">
+    <Position X="4.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Communication\Transfer\SerializeException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Communication.ConnectionHandler" BaseTypeListCollapsed="true">
+    <Position X="4.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAABCACAAAAAABCAAAAAAAAAAAAAAASA=</HashCode>
+      <FileName>Domain\Communication\ConnectionHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Communication.SocketClient" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAACAAAABAAEABAAAAAAAAAAAQIAAAAAAAAIA=</HashCode>
+      <FileName>Domain\Communication\SocketClient.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Communication.SocketServer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAoABAAAACAAAABgAEABAAAAAIAAAAAQIAAAAAgAAAA=</HashCode>
+      <FileName>Domain\Communication\SocketServer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.Game">
+    <Position X="2.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgQCAABEAAAAAIAAAAAEAAAgAAAAAACAAAIAAAAEAgA=</HashCode>
+      <FileName>Domain\Game\Game.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.GameActionCompanion">
+    <Position X="4.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Game\GameAction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.GameController">
+    <Position X="1" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQWCAAIAAQAiAMEAQGBiAIwgAEQQChAAAQEDiBAAEgA=</HashCode>
+      <FileName>Domain\Game\GameController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.Robot">
+    <Position X="12.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQCAAAAQCAkAAAAAAAAAAMAAAIAQEAAAAAAAAgABQAA=</HashCode>
+      <FileName>Domain\Game\Robot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.RobotConfig">
+    <Position X="10.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAggAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Domain\Game\RobotConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Domain.Game.Stats">
+    <Position X="10.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAEAAAAAABAAAEAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Domain\Game\Stats.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RobotCombat.Views.ConsoleView" BaseTypeListCollapsed="true">
+    <Position X="8.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ggBAAAgBAAAAAAAAEAAAAEAAAAAACAAAAAAABAACAAg=</HashCode>
+      <FileName>Views\ConsoleView.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Interface Name="RobotCombat.Domain.Communication.ISocket" Collapsed="true">
+    <Position X="6.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAABAAEAAAAAAAAAAAAAQIAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Communication\ISocket.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="RobotCombat.Domain.ICommand" Collapsed="true">
+    <Position X="10.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\ICommand.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="RobotCombat.Domain.IGameView" Collapsed="true">
+    <Position X="8.75" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ggAAAAgBAAAAAAAAEAAAAEAAAAAACAAAAAAABAAAAAg=</HashCode>
+      <FileName>Domain\IGameView.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="RobotCombat.Domain.Communication.Transfer.MessageType" Collapsed="true">
+    <Position X="6.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AYAAAAEBAAAAQEBAAABAAAAAwAAAAAAABAAJgEgAAAA=</HashCode>
+      <FileName>Domain\Communication\Transfer\MessageType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RobotCombat.Domain.Game.GameAction" Collapsed="true">
+    <Position X="6.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAEAAAAAAAgAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Game\GameAction.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RobotCombat.Domain.Game.GameStatus" Collapsed="true">
+    <Position X="6.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAAAAAAAAAAAAAAACgAAIAAAAIAAAA=</HashCode>
+      <FileName>Domain\Game\GameStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="RobotCombat.Domain.Game.StatsType" Collapsed="true">
+    <Position X="12.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAgAAARAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Domain\Game\StatsType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
