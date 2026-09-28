@@ -83,12 +83,11 @@ namespace RobotCombat.Domain.Game
          */
         public void ConfigureHost(RobotConfig hostConfig)
         {
-            lock (sync)
-            {
-                ResetIfEnded();
-                _hostRobotConfig = hostConfig;
-                CreateGame();
-            }
+
+            ResetIfEnded();
+            _hostRobotConfig = hostConfig;
+            CreateGame();
+
         }
 
         /**
@@ -96,12 +95,10 @@ namespace RobotCombat.Domain.Game
          */
         public void ConfigurePlayer(RobotConfig playerConfig)
         {
-            lock (sync)
-            {
-                ResetIfEnded();
-                _playerRobotConfig = playerConfig;
-                CreateGame();
-            }
+            ResetIfEnded();
+            _playerRobotConfig = playerConfig;
+            CreateGame();
+
         }
 
         /**
@@ -155,10 +152,9 @@ namespace RobotCombat.Domain.Game
         public async Task Replay()
         {
             OpponentWantsReplay = false;
-            lock (sync)
-            {
-                ResetIfEnded();
-            }
+
+            ResetIfEnded();
+
             await AskLocalConfig();
         }
 

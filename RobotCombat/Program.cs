@@ -100,7 +100,8 @@ do
                     }
                 }
                 else
-                {
+                { // joueur externe
+
                     // demander au joueur s'il souhaite rejouer
                     replay = consoleGameView.AskPlayerReplay();
 
