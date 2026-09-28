@@ -17,7 +17,7 @@ namespace RobotCombat.Domain.Commands
 
             switch (message.MessageType)
             {
-                case MessageType.START:
+                case MessageType.GAME_START:
                     controller.ApplyServerStart(message.Data);
                     break;
                 case MessageType.TURN:
@@ -26,7 +26,7 @@ namespace RobotCombat.Domain.Commands
                 case MessageType.ERROR:
                     controller.ApplyServerError(message.Data);
                     break;
-                case MessageType.RESULT when message.Action.HasValue:
+                case MessageType.PLAYER_RESULT when message.Action.HasValue:
                     controller.ApplyServerResult(message.Action.Value, message.Data);
                     break;
                 default:

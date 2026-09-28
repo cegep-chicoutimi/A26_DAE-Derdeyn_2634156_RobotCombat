@@ -13,8 +13,8 @@ namespace RobotCombat.Domain.Communication.Transfer
     {
         public MessageType MessageType { get; init; }
         public GameAction? Action { get; init; }
-        public required string Data { get; init; }
         public GameStatus Status { get; init; }
+        public required string Data { get; init; }
 
     }
 }

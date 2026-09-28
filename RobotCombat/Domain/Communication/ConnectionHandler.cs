@@ -42,7 +42,7 @@ namespace RobotCombat.Domain.Communication
          */
         public async Task<string?> ReceiveMessage()
         {
-            var buffer = new byte[2048];
+            var buffer = new byte[4096];
             var chars = new char[Encoding.UTF8.GetMaxCharCount(buffer.Length)];
             int eomIndex = pending.ToString().IndexOf(Eom);
 
@@ -91,7 +91,7 @@ namespace RobotCombat.Domain.Communication
             catch (ObjectDisposedException)
             {
             }
-
+            socket.Close();
             socket.Dispose();
         }
 

@@ -9,21 +9,30 @@
      */
     public enum MessageType
     {
-        CREATE,
-        JOIN,
+        PLAYER_JOIN,
+
         WELCOME,
+
         SERVER_BUSY,
-        ROBOT,
-        ROBOT_OK,
+
+        ROBOT_CONFIG,
+
+        ROBOT_CONFIG_OK,
+
         ERROR,
-        START,
+
+        GAME_START,
+
         TURN,
-        ACTION,
-        RESULT,
-        END,
-        REPLAY,
-        REPLAY_OK,
-        QUIT,
-        QUIT_OK
+
+        PLAYER_ACTION,
+
+        PLAYER_RESULT,
+
+        GAME_END,
+
+        PLAYER_REPLAY,
+
+        QUIT
     }
 }

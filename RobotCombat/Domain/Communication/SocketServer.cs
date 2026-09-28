@@ -145,6 +145,7 @@ namespace RobotCombat.Domain.Communication
          */
         public async Task Send(string message)
         {
+            Console.WriteLine($"message envoyé {message}");
             if (connection != null && connection.IsConnected())
             {
                 await connection.SendMessage(message);

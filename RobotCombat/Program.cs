@@ -21,7 +21,7 @@ else
 {
     var hostInfo = consoleGameView.AskPlayerHostInformations();
     socket = new SocketClient(hostInfo[0], int.Parse(hostInfo[1]));
-    await socket.Send($"Join;{hostInfo[2]}");
+    await socket.Send(MessageHelper.BuildMessage(MessageType.PLAYER_JOIN, null, GameStatus.WAITING_FOR_HOST_CONFIG, ""));
 }
 
 bool keepRunning = true;
@@ -32,14 +32,14 @@ do
     var gameController = new GameController(isHost, gameConfig, consoleGameView, commandMenu, socket);
 
     commandMenu.AddHandler(MessageType.WELCOME, new PlayerJoinHandler(gameController, consoleGameView));
-    commandMenu.AddHandler(MessageType.ROBOT, new RobotReadyHandler(gameController, consoleGameView));
-    commandMenu.AddHandler(MessageType.ACTION, new PlayerActionHandler(gameController, consoleGameView));
+    commandMenu.AddHandler(MessageType.ROBOT_CONFIG, new RobotReadyHandler(gameController, consoleGameView));
+    commandMenu.AddHandler(MessageType.PLAYER_ACTION, new PlayerActionHandler(gameController, consoleGameView));
     var serverMessageHandler = new PlayerResultHandler(gameController, consoleGameView);
-    commandMenu.AddHandler(MessageType.START, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.GAME_START, serverMessageHandler);
     commandMenu.AddHandler(MessageType.TURN, serverMessageHandler);
-    commandMenu.AddHandler(MessageType.RESULT, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.PLAYER_RESULT, serverMessageHandler);
     commandMenu.AddHandler(MessageType.ERROR, serverMessageHandler);
-    commandMenu.AddHandler(MessageType.REPLAY, new PlayerReplayHandler(gameController, consoleGameView));
+    commandMenu.AddHandler(MessageType.PLAYER_REPLAY, new PlayerReplayHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.QUIT, new QuitHandler(gameController, consoleGameView));
 
     try
@@ -96,7 +96,7 @@ do
 
                     if (replay)
                     {
-                        await gameController.Send(MessageType.REPLAY, null, "");
+                        await gameController.Send(MessageType.PLAYER_REPLAY, null, "");
                     }
                 }
                 else
@@ -112,7 +112,7 @@ do
                     }
                     else if (replay)
                     {
-                        await gameController.Send(MessageType.REPLAY, null, "");
+                        await gameController.Send(MessageType.PLAYER_REPLAY, null, "");
                         
                         // attente réponse de l'hôte
                         while (!gameController.OpponentWantsReplay && !listenTask.IsCompleted)

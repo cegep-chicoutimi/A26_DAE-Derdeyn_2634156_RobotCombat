@@ -8,7 +8,7 @@ namespace RobotCombat.Domain.Communication.Transfer
      */
     public class MessageHelper
     {
-        private static readonly JsonSerializerOptions JsonSerializerOption = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+       private static readonly JsonSerializerOptions JsonSerializerOption = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         /**
          * Construit un message JSON à partir des paramètres fournis.
          * @param type Le type de message.

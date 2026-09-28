@@ -71,7 +71,7 @@ namespace RobotCombat.Domain.Game
             }
 
             _playerRobotConfig = localConfig;
-            await Send(MessageType.ROBOT, null, $"{localConfig.HpPoints};{localConfig.ArmorPoints};{localConfig.DamagePoints}");
+            await Send(MessageType.ROBOT_CONFIG, null, $"{localConfig.HpPoints};{localConfig.ArmorPoints};{localConfig.DamagePoints}");
         }
 
         /**
@@ -86,7 +86,7 @@ namespace RobotCombat.Domain.Game
                 return;
             }
 
-            await Send(MessageType.ROBOT, null, "OK");
+            await Send(MessageType.ROBOT_CONFIG_OK, null, "OK");
             ConfigurePlayer(robotConfig);
         }
 
@@ -152,7 +152,7 @@ namespace RobotCombat.Domain.Game
          */
         private async Task StartHostGame()
         {
-            await Send(MessageType.START, null, BuildStateData());
+            await Send(MessageType.GAME_START, null, BuildStateData());
             await SendTurn();
         }
 
@@ -196,7 +196,7 @@ namespace RobotCombat.Domain.Game
 
             if (!IsHost)
             {
-                await Send(MessageType.ACTION, action, "");
+                await Send(MessageType.PLAYER_ACTION, action, "");
                 view.ShowMessage("Action envoyée, en attente du serveur...");
                 return;
             }
@@ -239,7 +239,7 @@ namespace RobotCombat.Domain.Game
                 return false;
             }
 
-            await Send(MessageType.RESULT, action, $"{TurnName(hostActed)};{damage};{BuildStateData()}");
+            await Send(MessageType.PLAYER_RESULT, action, $"{TurnName(hostActed)};{damage};{BuildStateData()}");
             ShowActionResult(hostActed, action, damage);
 
             if (game.Status == GameStatus.PLAYING)
