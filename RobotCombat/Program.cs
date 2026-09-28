@@ -15,7 +15,7 @@ ISocket socket;
 if (isHost)
 {
     var hostInfo = consoleGameView.AskHostPortInformation();
-    socket = new SocketServer(gameConfig.Port);
+    socket = new SocketServer(gameConfig.Port, gameConfig.IpAddress);
 }
 else
 {

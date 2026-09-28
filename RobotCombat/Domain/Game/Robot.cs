@@ -12,7 +12,6 @@ namespace RobotCombat.Domain.Game
     public class Robot(Boolean isHost, RobotConfig robotConfig, Config config)
     {
         public readonly Boolean IsHost = isHost;
-        private Boolean isRecharging = false;
         private Boolean isDefending = false; // mieux d'enregister la derniere action effectuee et de calculer les stats en fonction de ca ?
         private readonly List<Stats> stats = new List<Stats>
             {
@@ -37,7 +36,7 @@ namespace RobotCombat.Domain.Game
          */
         public int Attack()
         {
-            ResetActions();
+            ResetDefend();
             return GetStat(StatsType.ATTACK).CurrentValue;
         }
         /**
@@ -52,7 +51,7 @@ namespace RobotCombat.Domain.Game
             {
                 throw new InvalidOperationException("Énergie insuffisante pour une attaque puissante.");
             }
-            isRecharging = false;
+            ResetDefend();
             GetStat(StatsType.ENERGY).Decrease(config.PowerDamageEnergyCost);
             return GetStat(StatsType.ATTACK).CurrentValue * config.PowerDamageMultiplier;
         }
@@ -62,7 +61,6 @@ namespace RobotCombat.Domain.Game
         public void Recharge()
         {
             ResetDefend();
-            isRecharging = true;
             GetStat(StatsType.ENERGY).Increase(config.RechargeEnergyGain, config.MaxEnergy);
         }
         /**
@@ -70,7 +68,6 @@ namespace RobotCombat.Domain.Game
          */
         public void Defend()
         {
-            ResetRecharge();
             isDefending = true;
         }
         /**
@@ -110,19 +107,12 @@ namespace RobotCombat.Domain.Game
             GetStat(StatsType.ENERGY).CurrentValue = energy;
         }
 
-        private void ResetRecharge()
-        {
-            isRecharging = false;
-        }
+       
         private void ResetDefend()
         {
             isDefending = false;
         }
-        private void ResetActions()
-        {
-            ResetRecharge();
-            ResetDefend();
-        }
+       
 
         private Stats GetStat(StatsType type)
         {

@@ -27,7 +27,7 @@ namespace RobotCombat.Domain.Commands
         private static RobotConfig? ParseRobotConfig(string data)
         {
             string[] parts = (data ?? "").Split(';');
-            if (parts.Length != 3 || int.TryParse(parts[0], out int hp) || int.TryParse(parts[1], out int armor)|| int.TryParse(parts[2], out int damage))
+            if (parts.Length != 3 || !int.TryParse(parts[0], out int hp) || !int.TryParse(parts[1], out int armor) || !int.TryParse(parts[2], out int damage))
             {
                 return null;
             }
