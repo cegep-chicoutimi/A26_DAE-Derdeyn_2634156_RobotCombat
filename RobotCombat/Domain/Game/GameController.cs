@@ -197,7 +197,7 @@ namespace RobotCombat.Domain.Game
             if (!IsHost)
             {
                 await Send(MessageType.PLAYER_ACTION, action, "");
-                view.ShowMessage("Action envoyée, en attente du serveur...");
+                // view.ShowMessage("Action envoyée, en attente du serveur...");
                 return;
             }
 

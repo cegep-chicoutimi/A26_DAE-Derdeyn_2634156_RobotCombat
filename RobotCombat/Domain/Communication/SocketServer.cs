@@ -1,10 +1,12 @@
-﻿using System.Net;
+﻿using Serilog;
+using System.Net;
 using System.Net.Sockets;
 
 namespace RobotCombat.Domain.Communication
 {
     public class SocketServer(int port, string ip) : ISocket
     {
+        private static readonly ILogger Logger = Log.ForContext<SocketServer>();
         private bool isRunning;
         private Socket? listener;
         private ConnectionHandler? connection;
@@ -31,7 +33,7 @@ namespace RobotCombat.Domain.Communication
             listener = new Socket(localIPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listener.Bind(localIPEndPoint);
             listener.Listen(100);
-
+            Logger.Information($"Serveur démarré sur le port {port}");
             isRunning = true;
             disposed = false;
         }
@@ -59,8 +61,9 @@ namespace RobotCombat.Domain.Communication
                 {
                     handler = await listener.AcceptAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Logger.Debug(ex, "AcceptLoop arrêtée (serveur arrêté)");
                     break; // le serveur a été fermé (Exit)
                 }
 
@@ -68,16 +71,19 @@ namespace RobotCombat.Domain.Communication
                 {
                     connection = new ConnectionHandler(handler);
                     isClientConnected = true;
+                    Logger.Information($"Client connecté : {handler.RemoteEndPoint}");
                 }
                 else
                 {
                     using var clientRejected = new ConnectionHandler(handler);
                     try
                     {
+                        Logger.Information("Client rejeté, serveur complet");
                         await clientRejected.SendMessage("SERVER_BUSY");
                     }
-                    catch (SocketException)
+                    catch (SocketException ex)
                     {
+                        Logger.Debug(ex, "Serveur complet, Impossible d'envoyer SERVER_BUSY");
                     }
                 }
             }
@@ -103,17 +109,23 @@ namespace RobotCombat.Domain.Communication
             {
                 message = await connection.ReceiveMessage();
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                Logger.Warning(ex, "Erreur socket pendant la réception");
                 message = null;
             }
 
             if (message == null)
             {
+                Logger.Information("Client déconnecté, place libérée");
                 // Le client est parti : la place est de nouveau libre
                 connection.Dispose();
                 connection = null;
                 isClientConnected = false;
+            }
+            else
+            {
+                Logger.Information($"Message reçu : {message}");
             }
 
             return message;
@@ -145,10 +157,13 @@ namespace RobotCombat.Domain.Communication
          */
         public async Task Send(string message)
         {
-            Console.WriteLine($"message envoyé {message}");
+            Logger.Debug($">> Message envoyé : {message}");
             if (connection != null && connection.IsConnected())
             {
                 await connection.SendMessage(message);
+            } else
+            {
+                Logger.Warning("Envoi ignoré, aucune connexion active : {Message}", message);
             }
         }
         /**

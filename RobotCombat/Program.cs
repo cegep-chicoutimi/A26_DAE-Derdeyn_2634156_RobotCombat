@@ -4,11 +4,20 @@ using RobotCombat.Domain.Communication;
 using RobotCombat.Domain.Communication.Transfer;
 using RobotCombat.Domain.Game;
 using RobotCombat.Views;
+using Serilog;
 
 var gameConfig = new Config();
 var consoleGameView = new ConsoleView(gameConfig);
 
 var isHost = consoleGameView.AskPlayerType().Equals("HOST");
+var startTime = DateTime.Now.ToString("yyMMdd_HHmm");
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.File(
+        path: $"logs/{startTime}_{(isHost ? "host" : "client")}-.log",
+        outputTemplate: "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {SourceContext} | {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 // Création socket en fonction du type de joueur
 ISocket socket;
@@ -33,6 +42,7 @@ do
 
     commandMenu.AddHandler(MessageType.WELCOME, new PlayerJoinHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ROBOT_CONFIG, new RobotReadyHandler(gameController, consoleGameView));
+    commandMenu.AddHandler(MessageType.ROBOT_CONFIG_OK, new RobotOkHandler(consoleGameView));
     commandMenu.AddHandler(MessageType.PLAYER_ACTION, new PlayerActionHandler(gameController, consoleGameView));
     var serverMessageHandler = new PlayerResultHandler(gameController, consoleGameView);
     commandMenu.AddHandler(MessageType.GAME_START, serverMessageHandler);
@@ -41,6 +51,7 @@ do
     commandMenu.AddHandler(MessageType.ERROR, serverMessageHandler);
     commandMenu.AddHandler(MessageType.PLAYER_REPLAY, new PlayerReplayHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.QUIT, new QuitHandler(gameController, consoleGameView));
+  
 
     try
     {
@@ -159,11 +170,7 @@ do
     }
     finally
     {
-        if (isHost)
-        {
-            consoleGameView.ShowMessage("Partie terminée. En attente d'un nouvel adversaire...");
-        }
-        else
+        if (!isHost)
         {
             socket.Exit();
             keepRunning = false;
@@ -176,3 +183,5 @@ if (isHost)
 {
     socket.Exit(); 
 }
+
+Log.CloseAndFlush();

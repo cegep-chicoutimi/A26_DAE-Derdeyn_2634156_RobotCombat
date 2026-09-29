@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using RobotCombat.Domain.Communication.Transfer;
+using RobotCombat.Domain.Game;
+using Serilog;
+using System.Net;
 using System.Net.Sockets;
 
 namespace RobotCombat.Domain.Communication
@@ -8,7 +11,8 @@ namespace RobotCombat.Domain.Communication
      */
     public class SocketClient(string ipAddress, int port) : ISocket
     {
-        private const string BusyMessage = "SERVER_BUSY";
+        private static readonly ILogger Logger = Log.ForContext<SocketClient>();
+        private static string BusyMessage = MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null, null, "");
         private ConnectionHandler? connection;
 
         /**
@@ -18,9 +22,11 @@ namespace RobotCombat.Domain.Communication
         {
             if (connection == null)
             {
+                Logger.Information($"Message envoyé dans le vide car déconnecté { message}");
                 return;
+                
             }
-
+            Logger.Debug($">> Envoi vers le serveur: {message}");
             await connection.SendMessage(message);
         }
         /**
@@ -30,14 +36,23 @@ namespace RobotCombat.Domain.Communication
         {
             if (connection == null)
             {
+                Logger.Debug("En attente de message mais aucune connexion");
                 return null;
             }
 
             string? message = await connection.ReceiveMessage();
 
+            if (message == null)
+            {
+                Logger.Information("Connexion fermée par le serveur (ou arrêtée)");
+                return null;
+            }
+
+            Logger.Debug($"<< Message reçu : {message}");
+
             if (message == BusyMessage)
             {
-                Console.WriteLine("Le serveur est à sa capacité maximale.");
+                Logger.Warning("Le serveur est full, fermeture de la connexion");
                 connection.Dispose();
                 connection = null;
                 return null;
@@ -50,9 +65,10 @@ namespace RobotCombat.Domain.Communication
          */
         public void Exit()
         {
+            Logger.Information($"Fermeture du socket demandé (connexion active : {connection != null})");
             if (connection != null)
             {
-                connection.Dispose();
+                connection.Dispose();   
                 connection = null;
             }
 
@@ -78,16 +94,20 @@ namespace RobotCombat.Domain.Communication
                 NoDelay = true
             };
 
+            Logger.Information($"Tentative de connexion à {remoteEndPoint}");
+
             try
             {
                 await socket.ConnectAsync(remoteEndPoint);
             }
-            catch
+            catch(Exception ex)
             {
+                Logger.Error(ex, "Échec de connexion à {remoteEndPoint}");
                 socket.Dispose();
-                throw; 
+                throw;
             }
 
+            Logger.Information($"Connecté à {remoteEndPoint}");
             connection = new ConnectionHandler(socket);
         }
     }

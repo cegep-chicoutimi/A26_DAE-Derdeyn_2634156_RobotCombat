@@ -56,72 +56,84 @@ namespace RobotCombat.Views
             int remainingPoints = config.PointsToGive;
             var robotConfig = new RobotConfig();
             bool isConfigConfirmed = false;
-            Console.Clear();
+
+           
             do
             {
+                Console.Clear();
                 DisplayRobotConfig(robotConfig);
-                DisplayRepartPoints(remainingPoints);
 
-                Console.Write("Votre choix : ");
-                string input = Console.ReadLine() ?? "";
-                switch (input)
+                if (remainingPoints > 0)
                 {
-                    case "1":
-                        Console.Write("Combien de points voulez-vous attribuer aux HP ? ");
-                        if (int.TryParse(Console.ReadLine(), out int hpPoints) && hpPoints >= 0 && hpPoints <= remainingPoints)
-                        {
-                            robotConfig.HpPoints += hpPoints;
-                            remainingPoints -= hpPoints;
-                        }
-                        else { Console.WriteLine("Nombre de points invalide."); }
-                        break;
-                    
-                    case "2":
-                        Console.Write("Combien de points voulez-vous attribuer à l'armure ? ");
-                        if (int.TryParse(Console.ReadLine(), out int armorPoints) && armorPoints >= 0 && armorPoints <= remainingPoints)
-                        {
-                            robotConfig.ArmorPoints += armorPoints ;
-                            remainingPoints -= armorPoints;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Nombre de points invalide.");
-                        }
-                        break;
-                    case "3":
-                        Console.Write("Combien de points voulez-vous attribuer aux dégâts ? ");
-                        if (int.TryParse(Console.ReadLine(), out int damagePoints) && damagePoints >= 0 && damagePoints <= remainingPoints)
-                        {
-                            robotConfig.DamagePoints += damagePoints;
-                            remainingPoints -= damagePoints;
-                        }
-                        else { Console.WriteLine("Nombre de points invalide."); }
-                        break;
-                    case "4":
-                        remainingPoints = config.PointsToGive;
+                    DisplayRepartPoints(remainingPoints);
+                    AskMenuChoice(ref robotConfig, ref remainingPoints);
+                }
+                else
+                {
+                    var messages = new string[]
+                    {
+                       "Vous avez utilisé tous vos points.",
+                       "Voulez-vous confirmer votre config ?"
+                    };
+                    isConfigConfirmed =  AskYesOrNo(messages);
+
+                    if (!isConfigConfirmed)
+                    {
                         robotConfig = new RobotConfig();
-                        break;
-                    case "5":
-                        if (remainingPoints == 0)
-                        {
-                            DisplayRobotConfig(robotConfig);
-                            isConfigConfirmed = true;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Vous devez encore répartir {remainingPoints} point(s).");
-                            DisplayRobotConfig(robotConfig);
-                        }
-                        break;
-                    default: Console.WriteLine("Choix invalide.");
-                        break;
+                        remainingPoints = config.PointsToGive;
+                    }
                 }
             } while (!isConfigConfirmed);
+
             Console.Clear();
             Console.WriteLine("Configuration confirmée !");
             DisplayRobotConfig(robotConfig);
             return robotConfig;
         }
+
+        private void AskMenuChoice(ref RobotConfig robotConfig, ref int remainingPoints)
+        {
+            Console.Write("Votre choix: ");
+            string input = Console.ReadLine() ?? "";
+
+            switch (input)
+            {
+                case "1":
+                    robotConfig.HpPoints += AskPoints("aux HP", ref remainingPoints);
+                    break;
+                case "2":
+                    robotConfig.ArmorPoints += AskPoints("à l'armure", ref remainingPoints);
+                    break;
+                case "3":
+                    robotConfig.DamagePoints += AskPoints("aux dégâts", ref remainingPoints);
+                    break;
+                case "4":
+                    robotConfig = new RobotConfig();
+                    remainingPoints = config.PointsToGive;
+                    break;
+                default:
+                    Console.WriteLine("Choix invalide.");
+                    break;
+            }
+        }
+
+       
+
+        private int AskPoints(string target,ref int remainingPoints)
+        {
+            Console.Write($"Combien de points voulez-vous attribuer {target} ? ");
+            if (int.TryParse(Console.ReadLine(), out int points) && points >= 0 && points <= remainingPoints)
+            {
+                remainingPoints -= points;
+                return points;
+            }
+
+            Console.WriteLine("Nombre de points invalide.");
+            return 0;
+        }
+
+       
+
         public string[] AskPlayerHostInformations()
         {
             string ipAddress;
@@ -160,54 +172,25 @@ namespace RobotCombat.Views
         }
 
         public bool AskPlayerReplay()
-        {
-            bool? replay = null;
-            Console.Write("Voulez-vous rejouer ? (o/n) : ");
-            do
+        {            
+            var messages = new string[]
             {
-                string input = Console.ReadLine() ?? "";
-                if (input.ToLowerInvariant() == "o")
-                {
-                    replay = true;
-                }
-                else if (input.ToLowerInvariant() == "n")
-                {
-                    replay = false;
-                }
-                else
-                {
-                    Console.Write("Entrée invalide. Voulez-vous rejouer ? (o/n) : ");
-                }
-            }
-            while (replay != true && replay != false);
-            return replay ?? false;
+                "Voulez-vous rejouer ?"
+            };
+
+            return AskYesOrNo(messages);
         }
 
         public string AskPlayerType()
         {
 
             String playerType = string.Empty;
-          
-            do
+            var message = new string[]
             {
-                Console.WriteLine("Choisissez :\n1 - Rejoindre une partie\n2 - Créer une partie");
-                string input = Console.ReadLine();
-                if (input == "1")
-                {
-                    playerType = "PLAYER";
-                }
-                else if (input == "2")
-                {
-                    playerType = "HOST";
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Entrée invalide. Veuillez entre 1 et 2.");
-                }
-            }
-            while (playerType != "PLAYER" && playerType != "HOST");
-            return playerType;
+                "Voulez-vous créer une partie ?"
+            };
+            var isHost = AskYesOrNo(message);
+            return isHost ? "HOST" : "PLAYER";
         }
 
         public void ShowMessage(string message)
@@ -238,7 +221,7 @@ namespace RobotCombat.Views
         {
             Console.Clear();
 
-            Console.WriteLine($"        {(localRobot.IsHost ? "Hôte" : "Joueur externe")}                {(remoteRobot.IsHost? "Hôte": "Joueur externe")}");
+            Console.WriteLine($"        Vous                Adversaire");
             Console.WriteLine();
             Console.WriteLine("      [ O_O ]                  [ O_O ]");
             Console.WriteLine("     /|#####|\\                /|#####|\\");
@@ -260,10 +243,32 @@ namespace RobotCombat.Views
             Console.WriteLine($"1 - Points de vie (HP) : +{config.HpPerPoint} par point dépensé");
             Console.WriteLine($"2 - Points de défense (DEF) : +{config.ArmorPerPoint} par point dépensé");
             Console.WriteLine($"3 - Points d'attaque (ATT) : +{config.DamagePerPoint} par point dépensé");
-            Console.WriteLine("4 - Réinitialiser la configuration");
-            Console.WriteLine("5 - Confirmer la configuration");
         }
 
 
+        private static bool AskYesOrNo(string[] messages)
+        {
+            while (true)
+            {
+                foreach (var message in messages)
+                {
+                    Console.WriteLine(message);
+                }
+                Console.Write("Votre choix (o/n): ");
+
+                switch (Console.ReadLine().ToLowerInvariant())
+                {
+                    case "o":
+                    case "oui":
+                        return true;
+                    case "n":
+                    case "non":
+                        return false;
+                    default:
+                        Console.WriteLine("Choix invalide.");
+                        break;
+                }
+            }
+        }
     }
 }

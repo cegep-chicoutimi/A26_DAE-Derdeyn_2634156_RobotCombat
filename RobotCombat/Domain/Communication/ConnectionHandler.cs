@@ -1,4 +1,5 @@
 using RobotCombat.Domain.Communication.Transfer;
+using Serilog;
 using System.Net.Sockets;
 using System.Text;
 
@@ -9,6 +10,7 @@ namespace RobotCombat.Domain.Communication
      */
     public class ConnectionHandler(Socket socket) : IDisposable
     {
+        private static readonly ILogger Logger = Log.ForContext<SocketClient>();
         private const string Eom = "<|EOM|>";
         private bool stopped = false;
 
@@ -24,6 +26,7 @@ namespace RobotCombat.Domain.Communication
         {
             if (stopped)
             {
+                Logger.Debug($"SendMessage ignoré, connexion arrêtée {socket.RemoteEndPoint}");
                 return;
             }
 
@@ -31,7 +34,17 @@ namespace RobotCombat.Domain.Communication
 
             byte[] bytes = Encoding.UTF8.GetBytes(content);
 
-            await socket.SendAsync(bytes, SocketFlags.None);
+            try
+            {
+                await socket.SendAsync(bytes, SocketFlags.None);
+                Logger.Verbose($"{bytes.Length} octets envoyés à {socket.RemoteEndPoint}");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Échec d'envoi à {socket.RemoteEndPoint}");
+                throw;
+            }
         }
 
         private readonly StringBuilder pending = new();
@@ -44,7 +57,7 @@ namespace RobotCombat.Domain.Communication
         {
             var buffer = new byte[4096];
             var chars = new char[Encoding.UTF8.GetMaxCharCount(buffer.Length)];
-            int eomIndex = pending.ToString().IndexOf(Eom);
+            int eomIndex = pending.ToString().IndexOf(Eom, StringComparison.Ordinal);
 
             while (eomIndex < 0)
             {
@@ -52,20 +65,35 @@ namespace RobotCombat.Domain.Communication
                 {
                     return null;
                 }
-
-                int received = await socket.ReceiveAsync(buffer, SocketFlags.None);
+                int received;
+                try
+                {
+                    received = await socket.ReceiveAsync(buffer, SocketFlags.None);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Debug(ex, $"Erreur lors de la réception d'un message ({socket.RemoteEndPoint}, arrêtée : {stopped})");
+                    throw;
+                }
                 if (received == 0)
                 {
-                    return null;   // le socket a fermé la connexion
+                    Logger.Debug($"{socket.RemoteEndPoint} a fermé la connexion");
+                    return null;
                 }
 
                 int charCount = decoder.GetChars(buffer, 0, received, chars, 0);
                 pending.Append(chars, 0, charCount);
-                eomIndex = pending.ToString().IndexOf(Eom);
+                eomIndex = pending.ToString().IndexOf(Eom, StringComparison.Ordinal);
             }
 
             string message = pending.ToString(0, eomIndex);
             pending.Remove(0, eomIndex + Eom.Length);
+
+            if (pending.Length > 0)
+            {
+                Logger.Verbose($"{pending.Length} caractères en attente");
+            }
+
             return message;
         }
 
@@ -78,6 +106,7 @@ namespace RobotCombat.Domain.Communication
             {
                 return;
             }
+            Logger.Debug($"Dispose de la connexion {socket.RemoteEndPoint}");
 
             stopped = true;
 
@@ -85,11 +114,13 @@ namespace RobotCombat.Domain.Communication
             {
                 socket.Shutdown(SocketShutdown.Both);
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                Logger.Debug(ex, $"Shutdown ignoré ({socket.RemoteEndPoint})");
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Logger.Debug(ex, $"Socket déjà libéré ({socket.RemoteEndPoint})");
             }
             socket.Close();
             socket.Dispose();
