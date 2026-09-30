@@ -107,12 +107,12 @@ do
 
                     if (replay)
                     {
-                        await gameController.Send(MessageType.PLAYER_REPLAY, null, "");
+                        await gameController.Send(MessageType.PLAYER_REPLAY, null, "OK");
                     }
                 }
                 else
                 { // joueur externe
-
+                  // ENVOYER FIN DE PARTIE AU JOUEUR
                     // demander au joueur s'il souhaite rejouer
                     replay = consoleGameView.AskPlayerReplay();
 

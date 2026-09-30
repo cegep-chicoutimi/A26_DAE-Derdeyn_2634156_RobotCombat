@@ -31,13 +31,13 @@ namespace RobotCombat.Domain.Commands
          */
         public void Execute(Message message)
         {
-            if (handlers.TryGetValue(message.MessageType, out var handler))
+            if (handlers.TryGetValue(message.Type, out var handler))
             {
                 handler.Handle(message);
             }
             else
             {
-                throw new Exception($"No handler found for message type: {message.MessageType}");
+                throw new Exception($"No handler found for message type: {message.Type}");
             }
         }
     }

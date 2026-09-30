@@ -37,6 +37,9 @@ namespace RobotCombat.Domain.Game
                 if (IsHost)
                 {
                     await Send(MessageType.WELCOME, null, "Hôte");
+                } else
+                {
+                    await Send(MessageType.PLAYER_JOIN, null, "");
                 }
             }
 
@@ -239,7 +242,7 @@ namespace RobotCombat.Domain.Game
                 return false;
             }
 
-            await Send(MessageType.PLAYER_RESULT, action, $"{TurnName(hostActed)};{damage};{BuildStateData()}");
+            await Send(MessageType.PLAYER_RESULT, action, $"{TurnName(hostActed)};{action.ToString()};{damage};{BuildStateData()}");
             ShowActionResult(hostActed, action, damage);
 
             if (game.Status == GameStatus.PLAYING)
@@ -330,8 +333,8 @@ namespace RobotCombat.Domain.Game
 
             string[] parts = data.Split(';');
             bool hostActed = parts[0] == TurnName(true);
-            int damage = int.Parse(parts[1]);
-            int[] state = ParseState(parts, 2);
+            int damage = int.Parse(parts[2]);
+            int[] state = ParseState(parts, 3);
 
             CurrentGame.CopyState(state[0], state[1], state[2], state[3]);
             ShowActionResult(hostActed, action, damage);
@@ -367,10 +370,15 @@ namespace RobotCombat.Domain.Game
         /**
          * Affiche le gagnant si la partie est terminée.
          */
-        public void ShowWinnerIfEnded()
+        public async Task ShowWinnerIfEnded()
         {
             if (CurrentGame != null && CurrentGame.Status == GameStatus.END_GAME)
             {
+                var hostHp = CurrentGame.robots[0].GetStats(StatsType.HP);
+                var clientHP = CurrentGame.robots[1].GetStats(StatsType.HP);
+
+                var message =  string.Join(';', CurrentGame.GetWinner().IsHost ? "HOTE" : "CLIENT", hostHp, clientHP); // todo var dans robot
+                await Send(MessageType.GAME_END, null, message);
                 Robot? winner = CurrentGame.GetWinner();
                 if (winner != null)
                 {

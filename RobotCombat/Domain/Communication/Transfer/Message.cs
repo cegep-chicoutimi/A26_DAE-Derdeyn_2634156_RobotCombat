@@ -11,7 +11,7 @@ namespace RobotCombat.Domain.Communication.Transfer
      */
     public record Message
     {
-        public MessageType MessageType { get; init; }
+        public MessageType Type { get; init; }
         public GameAction? Action { get; init; }
         public GameStatus? Status { get; init; }
         public required string Data { get; init; }

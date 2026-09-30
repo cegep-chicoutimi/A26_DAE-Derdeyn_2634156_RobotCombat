@@ -21,7 +21,7 @@ namespace RobotCombat.Domain.Communication.Transfer
         {
             var message =  new Message
             {
-                MessageType = type,
+                Type = type,
                 Action = action,
                 Status = status,
                 Data = data

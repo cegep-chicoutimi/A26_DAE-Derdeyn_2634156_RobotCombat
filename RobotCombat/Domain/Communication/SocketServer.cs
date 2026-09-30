@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using RobotCombat.Domain.Communication.Transfer;
+using Serilog;
 using System.Net;
 using System.Net.Sockets;
 
@@ -79,7 +80,7 @@ namespace RobotCombat.Domain.Communication
                     try
                     {
                         Logger.Information("Client rejeté, serveur complet");
-                        await clientRejected.SendMessage("SERVER_BUSY");
+                        await clientRejected.SendMessage(MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null,null,""));
                     }
                     catch (SocketException ex)
                     {

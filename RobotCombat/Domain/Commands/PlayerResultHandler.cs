@@ -15,7 +15,7 @@ namespace RobotCombat.Domain.Commands
                 return; // le serveur ne doit jamais recevoir ces messages
             }
 
-            switch (message.MessageType)
+            switch (message.Type)
             {
                 case MessageType.GAME_START:
                     controller.ApplyServerStart(message.Data);
@@ -30,7 +30,7 @@ namespace RobotCombat.Domain.Commands
                     controller.ApplyServerResult(message.Action.Value, message.Data);
                     break;
                 default:
-                    view.ShowMessage($"Message du serveur invalide : {message.MessageType}");
+                    view.ShowMessage($"Message du serveur invalide : {message.Type}");
                     break;
             }
         }

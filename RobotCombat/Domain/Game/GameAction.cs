@@ -60,5 +60,17 @@ namespace RobotCombat.Domain.Game
             };
         }
 
+        public static string ToString(this GameAction action)
+        {
+            return action switch
+            {
+                GameAction.ATTACK => "ATTACK",
+                GameAction.DEFENSE => "DEFENSE",
+                GameAction.ATTACK_PUISSANCE => "ATTACK_PUISSANCE",
+                GameAction.RECHARGE => "RECHARGE",
+                _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
+            };
+
+        }
     }
 }

@@ -9,7 +9,7 @@ public class MessageHelperTest
     [TestMethod]
     public void ShouldBuildActionAttackMessage()
     {
-        var expected = "{\"messageType\":8,\"action\":0,\"status\":3,\"data\":\"Test data\"}";
+        var expected = "{\"type\":8,\"action\":0,\"status\":3,\"data\":\"Test data\"}";
 
         var actual = MessageHelper.BuildMessage(MessageType.PLAYER_ACTION, GameAction.ATTACK, GameStatus.PLAYING, "Test data");
 
@@ -21,20 +21,22 @@ public class MessageHelperTest
     {
         var expected = new Message
         {
-            MessageType = MessageType.PLAYER_ACTION,
+            Type = MessageType.PLAYER_ACTION,
             Action = GameAction.ATTACK,
             Data = "Test data",
             Status = GameStatus.PLAYING
         };
+        Console.WriteLine(MessageType.PLAYER_ACTION);
         var actual = MessageHelper.ParseMessage("""
-            {
-              "messageType": 8,
-              "action": 0,
-              "data": "Test data",
-              "status": 3
-            }
-            """);
+        {
+          "type": 8,
+          "action": 0,
+          "data": "Test data",
+          "status": 3
+        }
+        """);
 
         Assert.AreEqual(expected, actual);
     }
+
 }
