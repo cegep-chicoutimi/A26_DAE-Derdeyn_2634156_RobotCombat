@@ -29,6 +29,12 @@ namespace RobotCombat.Domain.Commands
                 case MessageType.PLAYER_RESULT when message.Action.HasValue:
                     controller.ApplyServerResult(message.Action.Value, message.Data);
                     break;
+                case MessageType.GAME_END:
+                    controller.ApplyServerEnd(message.Data);
+                    break;
+                case MessageType.PLAYER_JOIN:
+                        view.ShowMessage("Le joueur a rejoint la partie");
+                       break;
                 default:
                     view.ShowMessage($"Message du serveur invalide : {message.Type}");
                     break;

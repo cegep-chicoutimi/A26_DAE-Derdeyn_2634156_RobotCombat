@@ -61,17 +61,18 @@ namespace RobotCombat.Domain.Game
         {
             RobotConfig localConfig = view.AskPlayerConfig();
 
+            while (!localConfig.IsValid())
+            {
+                view.ShowMessage("Configuration invalide, veuillez réassayer.");
+                localConfig = view.AskPlayerConfig();
+            }
+
             if (IsHost)
             {
                 ConfigureHost(localConfig);
                 return;
             }
 
-            while (!localConfig.IsValid())
-            {
-                view.ShowMessage("Il faut répartir exactement 10 points.");
-                localConfig = view.AskPlayerConfig();
-            }
 
             _playerRobotConfig = localConfig;
             await Send(MessageType.ROBOT_CONFIG, null, $"{localConfig.HpPoints};{localConfig.ArmorPoints};{localConfig.DamagePoints}");
@@ -377,8 +378,29 @@ namespace RobotCombat.Domain.Game
                 var hostHp = CurrentGame.robots[0].GetStats(StatsType.HP);
                 var clientHP = CurrentGame.robots[1].GetStats(StatsType.HP);
 
-                var message =  string.Join(';', CurrentGame.GetWinner().IsHost ? "HOTE" : "CLIENT", hostHp, clientHP); // todo var dans robot
-                await Send(MessageType.GAME_END, null, message);
+             if(IsHost)
+                {
+                    var message = string.Join(';', CurrentGame.GetWinner().IsHost ? "HOTE" : "CLIENT", hostHp, clientHP); // todo var dans robot
+                    await Send(MessageType.GAME_END, null, message);
+                } 
+                Robot? winner = CurrentGame.GetWinner();
+                if (winner != null)
+                {
+                    view.ShowWinner(winner);
+                }
+            }
+        }
+
+        public void ApplyServerEnd(string data)
+        {
+            string[] parts = data.Split(';');
+            bool hostWon = parts[0] == "HOTE";
+            int hostHp = int.Parse(parts[1]);
+            int clientHp = int.Parse(parts[2]);
+            if (CurrentGame != null)
+            {
+                CurrentGame.CopyState(hostHp, clientHp, 0, 0);
+                DisplayFight();
                 Robot? winner = CurrentGame.GetWinner();
                 if (winner != null)
                 {

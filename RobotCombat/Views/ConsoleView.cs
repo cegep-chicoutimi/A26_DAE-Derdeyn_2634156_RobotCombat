@@ -60,7 +60,7 @@ namespace RobotCombat.Views
            
             do
             {
-                Console.Clear();
+               // Console.Clear();
                 DisplayRobotConfig(robotConfig);
 
                 if (remainingPoints > 0)
@@ -79,6 +79,8 @@ namespace RobotCombat.Views
 
                     if (!isConfigConfirmed)
                     {
+                         Console.WriteLine("Réinitialisation de la configuration du robot...");
+                        Console.WriteLine("pqs confirm2");
                         robotConfig = new RobotConfig();
                         remainingPoints = config.PointsToGive;
                     }

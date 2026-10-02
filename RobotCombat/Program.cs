@@ -45,14 +45,16 @@ do
     commandMenu.AddHandler(MessageType.ROBOT_CONFIG_OK, new RobotOkHandler(consoleGameView));
     commandMenu.AddHandler(MessageType.PLAYER_ACTION, new PlayerActionHandler(gameController, consoleGameView));
     var serverMessageHandler = new PlayerResultHandler(gameController, consoleGameView);
+    commandMenu.AddHandler(MessageType.PLAYER_JOIN, serverMessageHandler);
     commandMenu.AddHandler(MessageType.GAME_START, serverMessageHandler);
     commandMenu.AddHandler(MessageType.TURN, serverMessageHandler);
     commandMenu.AddHandler(MessageType.PLAYER_RESULT, serverMessageHandler);
+    commandMenu.AddHandler(MessageType.GAME_END, serverMessageHandler);
     commandMenu.AddHandler(MessageType.ERROR, serverMessageHandler);
     commandMenu.AddHandler(MessageType.PLAYER_REPLAY, new PlayerReplayHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.QUIT, new QuitHandler(gameController, consoleGameView));
-  
 
+    
     try
     {
         consoleGameView.ShowMessage(isHost ? "En attente d'un adversaire..." : "Connexion à l'hôte...");

@@ -91,7 +91,7 @@ namespace RobotCombat.Domain.Communication
 
             if (pending.Length > 0)
             {
-                Logger.Verbose($"{pending.Length} caractères en attente");
+                Logger.Information($"{pending.Length} caractères en attente");
             }
 
             return message;
