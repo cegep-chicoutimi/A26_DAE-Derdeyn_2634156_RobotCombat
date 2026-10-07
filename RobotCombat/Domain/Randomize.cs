@@ -6,8 +6,10 @@ namespace RobotCombat.Domain
 
         /**
          * Vérifie si une action réussit en fonction des points de vie du robot.
-         * Plus le robot est affaibli, plus il a de chances de réussir 
-         * max(30 %, 100 − PV actuels × 100 / PV max)
+         * Plus le robot est affaibli, plus il a de chances de réussir.
+         * La chance monte linéairement de MinSuccessPercent (pleine vie) à MaxSuccessPercent (0 PV) :
+         * chance = Min + (Max - Min) × PV perdus / PV max
+         * (défaut : 100 % PV => 60 %, 50 % PV => ~77 %, 10 % PV => ~91 %)
          * @param hpBase Les points de vie maximum du robot.
          * @param hpNow Les points de vie actuels du robot.
          * @return true si l'action réussit, sinon false
@@ -18,7 +20,9 @@ namespace RobotCombat.Domain
             {
                 return true;
             }
-            int chancePercent = Math.Max(config.MinSuccessPercent, 100 - hpNow * 100 / hpBase);
+            int lostHp = Math.Clamp(hpBase - hpNow, 0, hpBase);
+            int chancePercent = config.MinSuccessPercent
+                              + (config.MaxSuccessPercent - config.MinSuccessPercent) * lostHp / hpBase;
             return _random.Next(0, 100) < chancePercent;
         }
 

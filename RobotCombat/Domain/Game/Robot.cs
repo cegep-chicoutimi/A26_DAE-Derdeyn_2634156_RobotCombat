@@ -11,6 +11,8 @@ namespace RobotCombat.Domain.Game
         private bool isDefending = false;
         // Esquive active : la PROCHAINE attaque reçue est évitée
         private bool isDodging = false;
+        // Nombre d'actions ratées d'affilée (anti-malchance)
+        private int failStreak = 0;
 
         private readonly List<Stats> stats = robotConfig.GetStats(config);
 
@@ -183,7 +185,12 @@ namespace RobotCombat.Domain.Game
          */
         private bool HasCompleted()
         {
-            return randomize.HasCompleteRandom(MaxHp, GetStat(StatsType.HP).CurrentValue);
+            // Anti-malchance : après MaxFailStreak échecs d'affilée, l'action réussit forcément
+            bool completed = failStreak >= config.MaxFailStreak
+                          || randomize.HasCompleteRandom(MaxHp, GetStat(StatsType.HP).CurrentValue);
+
+            failStreak = completed ? 0 : failStreak + 1;
+            return completed;
         }
 
         

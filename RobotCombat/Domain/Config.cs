@@ -24,7 +24,9 @@
         int LuckToEscapePercent = 15,
         int RepairPercent = 10,
         int RepairMinHp = 5,
-        int MinSuccessPercent = 30
+        int MinSuccessPercent = 60,   // chance de réussite à pleine vie
+        int MaxSuccessPercent = 95,   // chance de réussite presque mort
+        int MaxFailStreak = 2         // après 2 échecs d'affilée, l'action suivante réussit forcément
     )
     {
     }

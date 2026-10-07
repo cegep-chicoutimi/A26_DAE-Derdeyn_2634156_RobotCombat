@@ -15,7 +15,7 @@ public class GameTest
             DamagePoints = 0,
             HpPoints = 0
         };
-        var config = new Config(MinSuccessPercent: 100); // réussite garantie => tests déterministes
+        var config = new Config(MinSuccessPercent: 100, MaxSuccessPercent: 100); // réussite garantie => tests déterministes
         return new Robot(isPlayer, robotConfig, config, new Randomize(config));
     }
 

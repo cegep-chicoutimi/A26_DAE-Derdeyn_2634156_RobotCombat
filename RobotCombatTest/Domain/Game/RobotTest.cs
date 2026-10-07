@@ -9,7 +9,7 @@ public class RobotTest
     private static Robot CreateRobot(int hpPoints = 0, int armorPoints = 0, int damagePoints = 0)
     {
         var robotConfig = new RobotConfig { HpPoints = hpPoints, ArmorPoints = armorPoints, DamagePoints = damagePoints };
-        var config = new Config(MinSuccessPercent: 100); // réussite garantie => tests déterministes
+        var config = new Config(MinSuccessPercent: 100, MaxSuccessPercent: 100); // réussite garantie => tests déterministes
         return new Robot(false, robotConfig, config, new Randomize(config));
     }
 
@@ -131,32 +131,44 @@ public class RandomizeTest
     }
 
     [TestMethod]
-    public void ShouldAlwaysSucceedWhenAlmostDead()
+    public void ShouldUseMinimumChanceAtFullHp()
     {
-        var randomize = new Randomize(new Config());
-        Assert.AreEqual(1000, CountSuccesses(randomize, 100, 0, 1000));
+        var randomize = new Randomize(new Config()); // 60 % à pleine vie
+        int successes = CountSuccesses(randomize, 100, 100);
+        Assert.IsTrue(successes > 5500 && successes < 6500, $"Réussites : {successes}");
     }
 
     [TestMethod]
-    public void ShouldUseMinimumChanceAtFullHp()
+    public void ShouldUseMaximumChanceAtZeroHp()
     {
-        var randomize = new Randomize(new Config()); // MinSuccessPercent = 30
-        int successes = CountSuccesses(randomize, 100, 100);
-        Assert.IsTrue(successes > 2500 && successes < 3500, $"Réussites : {successes}");
+        var randomize = new Randomize(new Config()); // 95 % à 0 PV
+        int successes = CountSuccesses(randomize, 100, 0);
+        Assert.IsTrue(successes > 9200 && successes < 9800, $"Réussites : {successes}");
     }
 
     [TestMethod]
     public void ShouldSucceedMoreWhenWeaker()
     {
         var randomize = new Randomize(new Config());
-        int at20Percent = CountSuccesses(randomize, 100, 20); // ~80 %
-        Assert.IsTrue(at20Percent > 7500 && at20Percent < 8500, $"Réussites : {at20Percent}");
+        Assert.IsTrue(CountSuccesses(randomize, 100, 20) > CountSuccesses(randomize, 100, 100));
     }
+}
 
+[TestClass]
+public class FailStreakTest
+{
     [TestMethod]
-    public void ShouldAlwaysFailAtFullHpWithoutMinimum()
+    public void ShouldNeverFailMoreThanMaxFailStreakInARow()
     {
-        var randomize = new Randomize(new Config(MinSuccessPercent: 0));
-        Assert.AreEqual(0, CountSuccesses(randomize, 100, 100, 1000));
+        // 0 % de chance : seul l'anti-malchance peut faire réussir
+        var config = new Config(MinSuccessPercent: 0, MaxSuccessPercent: 0, MaxFailStreak: 2);
+        var robot = new Robot(false, new RobotConfig(), config, new Randomize(config));
+
+        // échec, échec, réussite forcée, échec, échec, réussite forcée...
+        bool[] expected = [false, false, true, false, false, true];
+        foreach (bool e in expected)
+        {
+            Assert.AreEqual(e, robot.Defend());
+        }
     }
 }
