@@ -13,7 +13,7 @@ namespace RobotCombat.Domain.Commands
     {
         public void Handle(Message message)
         {
-            view.ShowMessage("L'adversaire a quitté avant la fin de la partie.");
+            view.ShowMessage("Le serveur est occupé avec un autre client.");
         }
     }
 }

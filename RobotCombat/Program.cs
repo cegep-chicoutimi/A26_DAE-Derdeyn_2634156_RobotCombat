@@ -174,6 +174,7 @@ do
     {
         if (!isHost)
         {
+            Console.ReadKey();
             socket.Exit();
             keepRunning = false;
         }

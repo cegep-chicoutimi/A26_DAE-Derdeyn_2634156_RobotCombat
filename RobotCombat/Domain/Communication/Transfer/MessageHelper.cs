@@ -17,7 +17,7 @@ namespace RobotCombat.Domain.Communication.Transfer
          * @param data Les données du message.
          * @return Une chaîne JSON représentant le message.
          */
-        public static string BuildMessage(MessageType type,  GameAction? action, GameStatus? status, string data)
+        public static string BuildMessage(MessageType type,  GameAction? action, GameStatus status = GameStatus.WAITING_FOR_PLAYER, string data = "")
         {
             var message =  new Message
             {

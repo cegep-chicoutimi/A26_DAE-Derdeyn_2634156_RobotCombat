@@ -9,9 +9,9 @@ namespace RobotCombat.Domain.Game
         public readonly bool IsHost = isHost;
 
         private bool isDefending = false;
-        // Esquive active : la PROCHAINE attaque reçue est évitée
+
         private bool isDodging = false;
-        // Nombre d'actions ratées d'affilée (anti-malchance)
+
         private int failStreak = 0;
 
         private readonly List<Stats> stats = robotConfig.GetStats(config);
@@ -143,15 +143,15 @@ namespace RobotCombat.Domain.Game
                 return 0;
             }
 
-            int mitigation = GetStat(StatsType.DEFENSE).CurrentValue;
+            int defValue = GetStat(StatsType.DEFENSE).CurrentValue;
             if (isDefending)
             {
                 // Bonus = 40 % de l'armure, avec un minimum de 5
-                mitigation += Math.Max(config.DefenseMinBonus, config.DefenseBonusPercent * mitigation / 100);
+                defValue += Math.Max(config.DefenseMinBonus, config.DefenseBonusPercent * defValue / 100);
                 isDefending = false;
             }
 
-            int actualDamage = Math.Max(1, damage - mitigation);
+            int actualDamage = Math.Max(1, damage - defValue);
             GetStat(StatsType.HP).Decrease(actualDamage);
             return actualDamage;
         }

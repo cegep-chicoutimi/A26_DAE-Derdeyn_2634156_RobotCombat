@@ -80,7 +80,7 @@ namespace RobotCombat.Domain.Communication
                     try
                     {
                         Logger.Information("Client rejeté, serveur complet");
-                        await clientRejected.SendMessage(MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null,null,""));
+                        await clientRejected.SendMessage(MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null));
                     }
                     catch (SocketException ex)
                     {

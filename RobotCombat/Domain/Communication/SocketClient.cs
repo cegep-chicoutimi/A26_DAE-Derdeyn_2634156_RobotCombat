@@ -12,7 +12,7 @@ namespace RobotCombat.Domain.Communication
     public class SocketClient(string ipAddress, int port) : ISocket
     {
         private static readonly ILogger Logger = Log.ForContext<SocketClient>();
-        private static string BusyMessage = MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null, null, "");
+        private static string BusyMessage = MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null, GameStatus.WAITING_FOR_PLAYER, "");
         private ConnectionHandler? connection;
 
         /**

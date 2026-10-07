@@ -21,8 +21,7 @@ namespace RobotCombat.Domain
                 return true;
             }
             int lostHp = Math.Clamp(hpBase - hpNow, 0, hpBase);
-            int chancePercent = config.MinSuccessPercent
-                              + (config.MaxSuccessPercent - config.MinSuccessPercent) * lostHp / hpBase;
+            int chancePercent = config.MinSuccessPercent + (config.MaxSuccessPercent - config.MinSuccessPercent) * lostHp / hpBase;
             return _random.Next(0, 100) < chancePercent;
         }
 
