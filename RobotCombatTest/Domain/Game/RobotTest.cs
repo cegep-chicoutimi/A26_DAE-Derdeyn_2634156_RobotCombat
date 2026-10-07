@@ -1,4 +1,4 @@
-namespace RobotCombatTest;
+﻿namespace RobotCombatTest;
 
 using RobotCombat.Domain;
 using RobotCombat.Domain.Game;
@@ -9,7 +9,7 @@ public class RobotTest
     private static Robot CreateRobot(int hpPoints = 0, int armorPoints = 0, int damagePoints = 0)
     {
         var robotConfig = new RobotConfig { HpPoints = hpPoints, ArmorPoints = armorPoints, DamagePoints = damagePoints };
-        var config = new Config();
+        var config = new Config(MinSuccessPercent: 100); // réussite garantie => tests déterministes
         return new Robot(false, robotConfig, config, new Randomize(config));
     }
 
@@ -96,10 +96,8 @@ public class RobotTest
         var robot = CreateRobot();
         robot.ForceStat(1, 2);
 
-        // 10% de 1 PV = 0 => minimum 5. (À 1 PV la réussite est aléatoire : on accepte l'échec)
-        int repaired = robot.Repair();
-
-        Assert.IsTrue(repaired == -1 || repaired == 5);
+        // 10% de 1 PV = 0 => minimum 5
+        Assert.AreEqual(5, robot.Repair());
     }
 
     [TestMethod]
@@ -119,23 +117,46 @@ public class RobotTest
 [TestClass]
 public class RandomizeTest
 {
-    [TestMethod]
-    public void ShouldAlwaysSucceedAtFullHp()
+    private static int CountSuccesses(Randomize randomize, int hpBase, int hpNow, int tries = 10000)
     {
-        var randomize = new Randomize(new Config());
-        for (int i = 0; i < 1000; i++)
+        int successes = 0;
+        for (int i = 0; i < tries; i++)
         {
-            Assert.IsTrue(randomize.HasCompleteRandom(100, 100));
+            if (randomize.HasCompleteRandom(hpBase, hpNow))
+            {
+                successes++;
+            }
         }
+        return successes;
     }
 
     [TestMethod]
-    public void ShouldAlwaysFailAtZeroHp()
+    public void ShouldAlwaysSucceedWhenAlmostDead()
     {
         var randomize = new Randomize(new Config());
-        for (int i = 0; i < 1000; i++)
-        {
-            Assert.IsFalse(randomize.HasCompleteRandom(100, 0));
-        }
+        Assert.AreEqual(1000, CountSuccesses(randomize, 100, 0, 1000));
+    }
+
+    [TestMethod]
+    public void ShouldUseMinimumChanceAtFullHp()
+    {
+        var randomize = new Randomize(new Config()); // MinSuccessPercent = 30
+        int successes = CountSuccesses(randomize, 100, 100);
+        Assert.IsTrue(successes > 2500 && successes < 3500, $"Réussites : {successes}");
+    }
+
+    [TestMethod]
+    public void ShouldSucceedMoreWhenWeaker()
+    {
+        var randomize = new Randomize(new Config());
+        int at20Percent = CountSuccesses(randomize, 100, 20); // ~80 %
+        Assert.IsTrue(at20Percent > 7500 && at20Percent < 8500, $"Réussites : {at20Percent}");
+    }
+
+    [TestMethod]
+    public void ShouldAlwaysFailAtFullHpWithoutMinimum()
+    {
+        var randomize = new Randomize(new Config(MinSuccessPercent: 0));
+        Assert.AreEqual(0, CountSuccesses(randomize, 100, 100, 1000));
     }
 }

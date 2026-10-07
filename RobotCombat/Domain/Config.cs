@@ -23,7 +23,8 @@
         int DefenseMinBonus = 5,
         int LuckToEscapePercent = 15,
         int RepairPercent = 10,
-        int RepairMinHp = 5
+        int RepairMinHp = 5,
+        int MinSuccessPercent = 30
     )
     {
     }

@@ -178,6 +178,9 @@ namespace RobotCombat.Domain.Game
             return stats.First(s => s.Type == type);
         }
 
+        /**
+         * Détermine si l'action réussit : plus le robot est affaibli, plus il a de chances de réussir.
+         */
         private bool HasCompleted()
         {
             return randomize.HasCompleteRandom(MaxHp, GetStat(StatsType.HP).CurrentValue);
