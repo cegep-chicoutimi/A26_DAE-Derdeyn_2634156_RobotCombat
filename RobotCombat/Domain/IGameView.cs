@@ -26,9 +26,9 @@ namespace RobotCombat.Domain
          */
         public void ShowMessage(string message);
         /**
-         * Afficher le gagnant de la partie
+         * Afficher le gagnant de la partie (null = aucun gagnant, fin par fuite)
          */
-        public void ShowWinner(Robot robot);
+        public void ShowWinner(Robot? robot);
         /**
          * Demander la configuration du robot du joueur
          */

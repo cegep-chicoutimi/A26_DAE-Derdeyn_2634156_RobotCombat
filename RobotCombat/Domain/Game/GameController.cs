@@ -223,7 +223,7 @@ namespace RobotCombat.Domain.Game
                 return;
             }
 
-            if (await ResolveAction(action))
+            if (!await ResolveAction(action))
             {
                 await Send(MessageType.ERROR, action, "INVALID_ACTION");
             }
@@ -237,14 +237,15 @@ namespace RobotCombat.Domain.Game
             Game game = CurrentGame!;
             bool hostActed = game.CurrentRobot.IsHost;
 
-            int damage = game.ApplyAction(action);
-            if (damage == -1)
+            int value = game.ApplyAction(action, out bool actionCompleted);
+            if (value == -1)
             {
                 return false;
             }
 
-            await Send(MessageType.PLAYER_RESULT, action, $"{TurnName(hostActed)};{action.ToString()};{damage};{BuildStateData()}");
-            ShowActionResult(hostActed, action, damage);
+            // RESULT;{HOTE|CLIENT};{action};{actionCompleted};{degats};{pvHote};{pvClient};{energieHote};{energieClient}
+            await Send(MessageType.PLAYER_RESULT, action, $"{TurnName(hostActed)};{action};{actionCompleted};{value};{BuildStateData()}");
+            ShowActionResult(hostActed, action, actionCompleted, value);
 
             if (game.Status == GameStatus.PLAYING)
             {
@@ -334,21 +335,26 @@ namespace RobotCombat.Domain.Game
 
             string[] parts = data.Split(';');
             bool hostActed = parts[0] == TurnName(true);
-            int damage = int.Parse(parts[2]);
-            int[] state = ParseState(parts, 3);
+            bool actionCompleted = bool.Parse(parts[2]);
+            int value = int.Parse(parts[3]);
+            int[] state = ParseState(parts, 4);
 
             CurrentGame.CopyState(state[0], state[1], state[2], state[3]);
-            ShowActionResult(hostActed, action, damage);
+            if (action == GameAction.ESCAPE && actionCompleted)
+            {
+                CurrentGame.EndByEscape();
+            }
+            ShowActionResult(hostActed, action, actionCompleted, value);
         }
 
         /**
          * Affiche le combat et le résultat d'une action et le gagnant si la partie est finie.
          */
-        private void ShowActionResult(bool hostActed, GameAction action, int damage)
+        private void ShowActionResult(bool hostActed, GameAction action, bool actionCompleted, int value)
         {
             bool isMine = hostActed == IsHost;
             DisplayFight();
-            view.ShowMessage($"{(isMine ? "Votre action" : "Action de l'adversaire")} > {action.ResultOfAction(damage)}");
+            view.ShowMessage($"{(isMine ? "Votre action" : "Action de l'adversaire")} ({action.ToLabel()}) > {action.ResultOfAction(actionCompleted, value)}");
             _ = ShowWinnerIfEnded();
         }
 
@@ -368,6 +374,8 @@ namespace RobotCombat.Domain.Game
 
         private static string TurnName(bool host) => host ? "HOTE" : "CLIENT";
 
+        private const string NO_WINNER = "AUCUN";
+
         /**
          * Affiche le gagnant si la partie est terminée.
          */
@@ -377,35 +385,42 @@ namespace RobotCombat.Domain.Game
             {
                 var hostHp = CurrentGame.robots[0].GetStats(StatsType.HP);
                 var clientHP = CurrentGame.robots[1].GetStats(StatsType.HP);
-
-             if(IsHost)
-                {
-                    var message = string.Join(';', CurrentGame.GetWinner().IsHost ? "HOTE" : "CLIENT", hostHp, clientHP); // todo var dans robot
-                    await Send(MessageType.GAME_END, null, message);
-                } 
                 Robot? winner = CurrentGame.GetWinner();
-                if (winner != null)
+
+                if (IsHost)
                 {
-                    view.ShowWinner(winner);
+                    string winnerName = winner == null ? NO_WINNER : TurnName(winner.IsHost);
+                    await Send(MessageType.GAME_END, null, string.Join(';', winnerName, hostHp, clientHP));
                 }
+                view.ShowWinner(winner);
             }
         }
 
         public void ApplyServerEnd(string data)
         {
+            if (CurrentGame == null)
+            {
+                return;
+            }
+
             string[] parts = data.Split(';');
-            bool hostWon = parts[0] == "HOTE";
             int hostHp = int.Parse(parts[1]);
             int clientHp = int.Parse(parts[2]);
-            if (CurrentGame != null)
+
+            bool alreadyEnded = CurrentGame.Status == GameStatus.END_GAME;
+
+            int hostEnergy = int.Parse(CurrentGame.robots[0].GetStats(StatsType.ENERGY));
+            int clientEnergy = int.Parse(CurrentGame.robots[1].GetStats(StatsType.ENERGY));
+            CurrentGame.CopyState(hostHp, clientHp, hostEnergy, clientEnergy);
+            if (parts[0] == NO_WINNER)
             {
-                CurrentGame.CopyState(hostHp, clientHp, 0, 0);
+                CurrentGame.EndByEscape();
+            }
+
+            if (!alreadyEnded)
+            {
                 DisplayFight();
-                Robot? winner = CurrentGame.GetWinner();
-                if (winner != null)
-                {
-                    view.ShowWinner(winner);
-                }
+                view.ShowWinner(CurrentGame.GetWinner());
             }
         }
 

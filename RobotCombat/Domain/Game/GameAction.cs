@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-
 namespace RobotCombat.Domain.Game
 {
     /**
@@ -20,67 +15,57 @@ namespace RobotCombat.Domain.Game
     }
     public static class GameActionCompanion
     {
-        ///**
-        // * Convertit une action de jeu en chaîne de caractères.
-        // * @param action L'action à convertir.
-        // * @return La chaîne de caractères représentant l'action.
-        // */
-        //public static string ToString(this GameAction action)
-        //{
-        //    return action switch
-        //    {
-        //        GameAction.ATTACK => "Attaque",
-        //        GameAction.DEFENSE => "Défense",
-        //        GameAction.ATTACK_PUISSANCE => "Attaque Puissance",
-        //        GameAction.RECHARGE => "Recharge",
-        //        _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
-        //    };
-        //}
 
 
         /**
          * Fournit une description du résultat d'une action de jeu.
          * @param action L'action effectuée.
-         * @param result Le résultat de l'action (par exemple, les dégâts infligés).
+         * @param completed true si l'action a réussi (actionCompleted).
+         * @param value Dégâts infligés (attaques) ou PV récupérés (réparation).
          * @return Une chaîne de caractères décrivant le résultat de l'action.
          */
-        public static string ResultOfAction(this GameAction action, int result)
+        public static string ResultOfAction(this GameAction action, bool completed, int value)
         {
             return action switch
             {
-                GameAction.ATTACK => $"Dégâts infligés : {result}",
+                GameAction.ATTACK or GameAction.ATTACK_PUISSANCE when !completed => "Attaque ratée",
+                GameAction.ATTACK or GameAction.ATTACK_PUISSANCE when value == 0 => "Attaque esquivée par la cible",
+                GameAction.ATTACK => $"Dégâts infligés : {value}",
+                GameAction.ATTACK_PUISSANCE => $"Dégâts puissants infligés : {value}",
 
-                GameAction.DEFENSE => "Bouclier temporaire activé",
+                GameAction.DEFENSE => completed ? "Bouclier activé pour la prochaine attaque reçue" : "Défense ratée",
 
-                GameAction.ATTACK_PUISSANCE when result == 0 => "Dégâts puissants manqués",
+                GameAction.RECHARGE => "Rechargement de l'énergie",
 
-                GameAction.ATTACK_PUISSANCE => $"Dégâts puissants infligés : {result}",
+                GameAction.REPAIR => completed ? $"Réparation : +{value} PV" : "Réparation ratée",
 
-                GameAction.RECHARGE => $"Rechargement de l'énergie",
-                GameAction.REPAIR => $"Réparation du robot",
-                GameAction.DODGE when result == 1 => $"Esquive réussie",
-                GameAction.DODGE when result == 0 => $"Esquive ratée",
-                GameAction.ESCAPE when result == 1 => "Fuite du combat",
+                GameAction.DODGE => completed ? "Esquive prête : la prochaine attaque sera évitée" : "Esquive ratée",
 
-                _ =>
-                    throw new ArgumentOutOfRangeException(nameof(action), action, null)
-            };
-        }
+                GameAction.ESCAPE => completed ? "Fuite réussie : fin de la partie, aucun gagnant" : "Fuite ratée",
 
-        public static string ToString(this GameAction action)
-        {
-            return action switch
-            {
-                GameAction.ATTACK => "ATTACK",
-                GameAction.DEFENSE => "DEFENSE",
-                GameAction.ATTACK_PUISSANCE => "ATTACK_PUISSANCE",
-                GameAction.RECHARGE => "RECHARGE",
-                GameAction.REPAIR => $"RÉPARATION",
-                GameAction.DODGE  => $"ESQUIVE",
-                GameAction.ESCAPE  => "FUITE",
                 _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
             };
 
+        }
+
+        /**
+       * Libellé lisible d'une action (affichage du menu).
+       * NB : une extension nommée ToString n'est jamais appelée (Enum.ToString est prioritaire),
+       * d'où le nom ToLabel.
+       */
+        public static string ToLabel(this GameAction action)
+        {
+            return action switch
+            {
+                GameAction.ATTACK => "ATTAQUE",
+                GameAction.DEFENSE => "DÉFENSE",
+                GameAction.ATTACK_PUISSANCE => "ATTAQUE PUISSANTE",
+                GameAction.RECHARGE => "RECHARGE",
+                GameAction.REPAIR => "RÉPARATION",
+                GameAction.DODGE => "ESQUIVE",
+                GameAction.ESCAPE => "FUITE",
+                _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
+            };
         }
     }
 }

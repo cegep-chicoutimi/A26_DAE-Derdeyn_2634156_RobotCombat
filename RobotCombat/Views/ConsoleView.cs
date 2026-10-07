@@ -36,7 +36,7 @@ namespace RobotCombat.Views
 
             for (int i = 0; i < _actions.Length; i++)
             {
-                Console.WriteLine($"{i + 1} - {_actions[i]}");
+                Console.WriteLine($"{i + 1} - {_actions[i].ToLabel()}");
             }
 
             while (true)
@@ -81,7 +81,6 @@ namespace RobotCombat.Views
                     if (!isConfigConfirmed)
                     {
                         Console.WriteLine("Réinitialisation de la configuration du robot...");
-                        Console.WriteLine("pqs confirm2");
                         robotConfig = new RobotConfig();
                         remainingPoints = config.PointsToGive;
                     }
@@ -201,14 +200,15 @@ namespace RobotCombat.Views
             Console.WriteLine(message);
         }
 
-        public void ShowWinner(Robot robot)
+        public void ShowWinner(Robot? robot)
         {
+            Console.WriteLine();
             if (robot == null)
             {
-                return; // todo supprimer return
+                Console.WriteLine("Un robot a pris la fuite \nAucun gagnant.");
+                return;
             }
-            Console.WriteLine();
-            Console.WriteLine(robot.IsHost ? "L'hôte remporte la partie !" : "Le joueur remporte la partie !");
+            Console.WriteLine(robot.IsHost ? "Vous remportez la partie !" : "L'adversaire remporte la partie !");
         }
 
         private void DisplayRobotConfig(RobotConfig robotConfig)
