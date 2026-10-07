@@ -6,6 +6,7 @@ namespace RobotCombat.Views
 {
     public class ConsoleView(Config config) : IGameView
     {
+        private readonly GameAction[] _actions = Enum.GetValues<GameAction>();
         public int AskHostPortInformation()
         {
             int port = 0;
@@ -32,22 +33,22 @@ namespace RobotCombat.Views
             }
 
             Console.WriteLine("Choisissez votre action :");
-            Console.WriteLine("1 - Attaque         2 - Attaque puissante");
-            Console.WriteLine("3 - Défense         4 - Recharge");
+
+            for (int i = 0; i < _actions.Length; i++)
+            {
+                Console.WriteLine($"{i + 1} - {_actions[i]}");
+            }
 
             while (true)
             {
                 Console.Write("Votre choix : ");
-                switch (Console.ReadLine())
+
+                if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 1 && choice <= _actions.Length)
                 {
-                    case "1": return GameAction.ATTACK;
-                    case "2": return GameAction.ATTACK_PUISSANCE;
-                    case "3": return GameAction.DEFENSE;
-                    case "4": return GameAction.RECHARGE;
-                    default:
-                        Console.WriteLine("Choix invalide.");
-                        break;
+                    return _actions[choice - 1];
                 }
+
+                Console.WriteLine("Choix invalide.");
             }
         }
 
@@ -57,10 +58,10 @@ namespace RobotCombat.Views
             var robotConfig = new RobotConfig();
             bool isConfigConfirmed = false;
 
-           
+
             do
             {
-               // Console.Clear();
+                // Console.Clear(); // todo
                 DisplayRobotConfig(robotConfig);
 
                 if (remainingPoints > 0)
@@ -75,11 +76,11 @@ namespace RobotCombat.Views
                        "Vous avez utilisé tous vos points.",
                        "Voulez-vous confirmer votre config ?"
                     };
-                    isConfigConfirmed =  AskYesOrNo(messages);
+                    isConfigConfirmed = AskYesOrNo(messages);
 
                     if (!isConfigConfirmed)
                     {
-                         Console.WriteLine("Réinitialisation de la configuration du robot...");
+                        Console.WriteLine("Réinitialisation de la configuration du robot...");
                         Console.WriteLine("pqs confirm2");
                         robotConfig = new RobotConfig();
                         remainingPoints = config.PointsToGive;
@@ -119,9 +120,9 @@ namespace RobotCombat.Views
             }
         }
 
-       
 
-        private int AskPoints(string target,ref int remainingPoints)
+
+        private int AskPoints(string target, ref int remainingPoints)
         {
             Console.Write($"Combien de points voulez-vous attribuer {target} ? ");
             if (int.TryParse(Console.ReadLine(), out int points) && points >= 0 && points <= remainingPoints)
@@ -134,7 +135,7 @@ namespace RobotCombat.Views
             return 0;
         }
 
-       
+
 
         public string[] AskPlayerHostInformations()
         {
@@ -170,11 +171,11 @@ namespace RobotCombat.Views
 
             } while (!isValid);
 
-            return [ipAddress, port,name];
+            return [ipAddress, port, name];
         }
 
         public bool AskPlayerReplay()
-        {            
+        {
             var messages = new string[]
             {
                 "Voulez-vous rejouer ?"
@@ -202,12 +203,12 @@ namespace RobotCombat.Views
 
         public void ShowWinner(Robot robot)
         {
-            if(robot == null)
+            if (robot == null)
             {
                 return; // todo supprimer return
             }
             Console.WriteLine();
-            Console.WriteLine(robot.IsHost ? "L'hôte remporte la partie !": "Le joueur remporte la partie !");
+            Console.WriteLine(robot.IsHost ? "L'hôte remporte la partie !" : "Le joueur remporte la partie !");
         }
 
         private void DisplayRobotConfig(RobotConfig robotConfig)
@@ -233,7 +234,7 @@ namespace RobotCombat.Views
             Console.WriteLine();
 
             Console.WriteLine($"HP      {localRobot.GetStats(StatsType.HP),3}           HP      {remoteRobot.GetStats(StatsType.HP),3} ");
-            Console.WriteLine($"{"Énergie  "+ localRobot.GetStats(StatsType.ENERGY) + "/" + config.MaxEnergy}       Énergie  {remoteRobot.GetStats(StatsType.ENERGY)}/{config.MaxEnergy}");
+            Console.WriteLine($"{"Énergie  " + localRobot.GetStats(StatsType.ENERGY) + "/" + config.MaxEnergy}       Énergie  {remoteRobot.GetStats(StatsType.ENERGY)}/{config.MaxEnergy}");
             Console.WriteLine();
         }
 

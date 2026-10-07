@@ -7,7 +7,7 @@ namespace RobotCombat.Domain.Game
     /**
      * Contrôleur principal du jeu, gère la logique de jeu et la communication entre les joueurs.
      */
-    public class GameController(bool isHost, Config config, IGameView view, CommandMenu menu, ISocket socket)
+    public class GameController(bool isHost, Config config, IGameView view, CommandMenu menu, ISocket socket, Randomize randomize)
     {
         public bool IsHost { get; } = isHost;
         private readonly Config config = config;
@@ -138,8 +138,8 @@ namespace RobotCombat.Domain.Game
         {
             if (CurrentGame == null && _hostRobotConfig != null && _playerRobotConfig != null)
             {
-                var hostRobot = new Robot(true, _hostRobotConfig, config);
-                var playerRobot = new Robot(false, _playerRobotConfig, config);
+                var hostRobot = new Robot(true, _hostRobotConfig, config, randomize);
+                var playerRobot = new Robot(false, _playerRobotConfig, config, randomize);
 
                 CurrentGame = new Game(config, hostRobot, playerRobot);
                 localTurn = false;
@@ -223,7 +223,7 @@ namespace RobotCombat.Domain.Game
                 return;
             }
 
-            if (!await ResolveAction(action))
+            if (await ResolveAction(action))
             {
                 await Send(MessageType.ERROR, action, "INVALID_ACTION");
             }
@@ -276,8 +276,8 @@ namespace RobotCombat.Domain.Game
          */
         public void ApplyServerStart(string data)
         {
-            var hostRobot = new Robot(true, new RobotConfig(), config);
-            var playerRobot = new Robot(false, _playerRobotConfig ?? new RobotConfig(), config);
+            var hostRobot = new Robot(true, new RobotConfig(), config, randomize);
+            var playerRobot = new Robot(false, _playerRobotConfig ?? new RobotConfig(), config, randomize);
             CurrentGame = new Game(config, hostRobot, playerRobot);
 
             int[] state = ParseState(data.Split(';'), 0);
@@ -349,7 +349,7 @@ namespace RobotCombat.Domain.Game
             bool isMine = hostActed == IsHost;
             DisplayFight();
             view.ShowMessage($"{(isMine ? "Votre action" : "Action de l'adversaire")} > {action.ResultOfAction(damage)}");
-            ShowWinnerIfEnded();
+            _ = ShowWinnerIfEnded();
         }
 
         /**

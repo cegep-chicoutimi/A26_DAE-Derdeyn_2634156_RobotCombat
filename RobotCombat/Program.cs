@@ -8,7 +8,7 @@ using Serilog;
 
 var gameConfig = new Config();
 var consoleGameView = new ConsoleView(gameConfig);
-
+var randomize = new Randomize(gameConfig);
 var isHost = consoleGameView.AskPlayerType().Equals("HOST");
 var startTime = DateTime.Now.ToString("yyMMdd_HHmm");
 
@@ -38,7 +38,7 @@ bool keepRunning = true;
 do
 {
     var commandMenu = new CommandMenu();
-    var gameController = new GameController(isHost, gameConfig, consoleGameView, commandMenu, socket);
+    var gameController = new GameController(isHost, gameConfig, consoleGameView, commandMenu, socket, randomize);
 
     commandMenu.AddHandler(MessageType.WELCOME, new PlayerJoinHandler(gameController, consoleGameView));
     commandMenu.AddHandler(MessageType.ROBOT_CONFIG, new RobotReadyHandler(gameController, consoleGameView));

@@ -9,17 +9,11 @@ namespace RobotCombat.Domain.Game
      * Représente un robot dans le jeu.
      * Contient les statistiques du robot et les actions qu'il peut effectuer.
      */
-    public class Robot(Boolean isHost, RobotConfig robotConfig, Config config)
+    public class Robot(Boolean isHost, RobotConfig robotConfig, Config config, Randomize randomize)
     {
         public readonly Boolean IsHost = isHost;
         private Boolean isDefending = false; // mieux d'enregister la derniere action effectuee et de calculer les stats en fonction de ca ?
-        private readonly List<Stats> stats = new List<Stats>
-            {
-                new Stats(StatsType.HP, config.BaseHp + robotConfig.HpPoints * config.HpPerPoint),
-                new Stats(StatsType.ATTACK, config.BaseDamage +robotConfig.DamagePoints * config.DamagePerPoint),
-                new Stats(StatsType.DEFENSE, config.BaseArmor+robotConfig.ArmorPoints * config.ArmorPerPoint),
-                new Stats(StatsType.ENERGY, config.BaseEnergy)
-            };
+        private readonly List<Stats> stats = robotConfig.GetStats(config);
 
         /**
          * Vérifie si le robot est encore en vie
@@ -37,6 +31,11 @@ namespace RobotCombat.Domain.Game
         public int Attack()
         {
             ResetDefend();
+            if (!HasCompleted())
+            {
+                return -1;
+            }
+
             return GetStat(StatsType.ATTACK).CurrentValue;
         }
         /**
@@ -50,6 +49,10 @@ namespace RobotCombat.Domain.Game
             if (!CanAttackWithPower())
             {
                 throw new InvalidOperationException("Énergie insuffisante pour une attaque puissante.");
+            }
+            if(!HasCompleted())
+            {
+                return -1;
             }
             ResetDefend();
             GetStat(StatsType.ENERGY).Decrease(config.PowerDamageEnergyCost);
@@ -68,7 +71,27 @@ namespace RobotCombat.Domain.Game
          */
         public void Defend()
         {
-            isDefending = true;
+            if(HasCompleted())
+            {
+                isDefending = true;
+            }
+            else
+            {
+                ResetDefend();
+            }
+            
+        }
+
+        public bool Escape()
+        {
+            ResetDefend();
+            return randomize.RandomEscape();
+        }
+
+        public bool Dodge()
+        {
+            ResetDefend();
+            return HasCompleted();
         }
         /**
          * Inflige des dégâts au robot en tenant compte de sa défense et de son état de défense.
@@ -80,7 +103,7 @@ namespace RobotCombat.Domain.Game
             int mitigation = GetStat(StatsType.DEFENSE).CurrentValue;
             if (isDefending)
             {
-                mitigation += config.DefenseBonus;
+                mitigation += config.DefenseBonusPercent*mitigation/100;
             }
 
             int actualDamage = Math.Max(1, damage - mitigation);
@@ -107,7 +130,19 @@ namespace RobotCombat.Domain.Game
             GetStat(StatsType.ENERGY).CurrentValue = energy;
         }
 
-       
+        public int Repair()
+        {
+            ResetDefend();
+            if(!HasCompleted())
+            {
+                return -1;
+            }
+            int repairAmount = Math.Max(config.RepairMinHp, GetStat(StatsType.HP).CurrentValue * config.RepairPercent / 100);
+            GetStat(StatsType.HP).Increase(repairAmount, config.BaseHp + robotConfig.HpPoints * config.HpPerPoint);
+            return repairAmount;
+        }
+
+
         private void ResetDefend()
         {
             isDefending = false;
@@ -117,6 +152,11 @@ namespace RobotCombat.Domain.Game
         private Stats GetStat(StatsType type)
         {
             return stats.First(s => s.Type == type);
+        }
+
+        private bool HasCompleted()
+        {
+            return randomize.HasCompleteRandom( robotConfig.HpPoints* config.HpPerPoint, GetStat(StatsType.HP).CurrentValue);
         }
 
     }

@@ -19,7 +19,10 @@
         int HpPerPoint = 10,
         int ArmorPerPoint = 2,
         int DamagePerPoint = 2,
-        int DefenseBonus = 5
+        int DefenseBonusPercent = 40,
+        int LuckToEscapePercent = 15,
+        int RepairPercent = 10,
+        int RepairMinHp = 5
     )
     {
     }

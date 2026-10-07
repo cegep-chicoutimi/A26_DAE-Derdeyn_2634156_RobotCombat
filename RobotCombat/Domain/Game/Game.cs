@@ -66,6 +66,15 @@ namespace RobotCombat.Domain.Game
                 case GameAction.RECHARGE:
                     attacker.Recharge();
                     break;
+                case GameAction.REPAIR:
+                    attacker.Repair();
+                    break;
+                case GameAction.DODGE:
+                    attacker.Dodge();
+                    break;
+                case GameAction.ESCAPE:
+                    attacker.Escape();
+                    break;
             }
 
             if (CheckGameEnded())

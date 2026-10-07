@@ -13,7 +13,10 @@ namespace RobotCombat.Domain.Game
         ATTACK,
         DEFENSE,
         ATTACK_PUISSANCE,
-        RECHARGE
+        RECHARGE,
+        REPAIR,
+        DODGE,
+        ESCAPE
     }
     public static class GameActionCompanion
     {
@@ -53,7 +56,11 @@ namespace RobotCombat.Domain.Game
 
                 GameAction.ATTACK_PUISSANCE => $"Dégâts puissants infligés : {result}",
 
-                GameAction.RECHARGE =>  $"Rechargement de l'énergie",
+                GameAction.RECHARGE => $"Rechargement de l'énergie",
+                GameAction.REPAIR => $"Réparation du robot",
+                GameAction.DODGE when result == 1 => $"Esquive réussie",
+                GameAction.DODGE when result == 0 => $"Esquive ratée",
+                GameAction.ESCAPE when result == 1 => "Fuite du combat",
 
                 _ =>
                     throw new ArgumentOutOfRangeException(nameof(action), action, null)
@@ -68,6 +75,9 @@ namespace RobotCombat.Domain.Game
                 GameAction.DEFENSE => "DEFENSE",
                 GameAction.ATTACK_PUISSANCE => "ATTACK_PUISSANCE",
                 GameAction.RECHARGE => "RECHARGE",
+                GameAction.REPAIR => $"RÉPARATION",
+                GameAction.DODGE  => $"ESQUIVE",
+                GameAction.ESCAPE  => "FUITE",
                 _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
             };
 
