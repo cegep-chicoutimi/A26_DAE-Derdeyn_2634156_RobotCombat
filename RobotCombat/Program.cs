@@ -185,7 +185,8 @@ do
     }
     catch (Exception ex)
     {
-        consoleGameView.ShowMessage($"Une erreur est survenue.");
+        Log.Error(ex, "Erreur inattendue");
+        consoleGameView.ShowMessage("Une erreur est survenue.");
     }
     finally
     {
@@ -201,6 +202,10 @@ do
 if (isHost)
 {
     socket.Exit(); 
+} else
+{
+    consoleGameView.ShowMessage("Appuyez sur une touche pour quitter...");
+    Console.ReadKey();
 }
 
 Log.CloseAndFlush();

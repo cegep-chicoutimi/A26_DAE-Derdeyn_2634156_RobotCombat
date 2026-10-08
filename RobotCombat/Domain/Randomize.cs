@@ -7,9 +7,7 @@ namespace RobotCombat.Domain
         /// <summary>
         /// Vérifie si une action réussit en fonction des points de vie du robot.
         /// Plus le robot est affaibli, plus il a de chances de réussir.
-        /// La chance monte linéairement de MinSuccessPercent (pleine vie) à MaxSuccessPercent (0 PV) :
-        /// chance = Min + (Max - Min) × PV perdus / PV max
-        /// (défaut : 100 % PV =&gt; 60 %, 50 % PV =&gt; ~77 %, 10 % PV =&gt; ~91 %)
+        /// La chance monte linéairement de MinSuccessPercent (pleine vie) à MaxSuccessPercent (0 PV)
         /// </summary>
         /// <param name="hpBase">Les points de vie maximum du robot.</param>
         /// <param name="hpNow">Les points de vie actuels du robot.</param>

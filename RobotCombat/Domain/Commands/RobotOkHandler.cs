@@ -10,7 +10,7 @@ namespace RobotCombat.Domain.Commands
     {
         public void Handle(Message message)
         {
-            view.ShowMessage("Configuration verrouillée. En attente de l'adversaire.");
+            view.ShowMessage("Configuration verrouillée.");
         }
     }
 }

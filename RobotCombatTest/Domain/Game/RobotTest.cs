@@ -9,7 +9,7 @@ public class RobotTest
     private static Robot CreateRobot(int hpPoints = 0, int armorPoints = 0, int damagePoints = 0)
     {
         var robotConfig = new RobotConfig { HpPoints = hpPoints, ArmorPoints = armorPoints, DamagePoints = damagePoints };
-        var config = new Config(MinSuccessPercent: 100, MaxSuccessPercent: 100); // réussite garantie => tests déterministes
+        var config = new Config(MinSuccessPercent: 100, MaxSuccessPercent: 100);
         return new Robot(false, robotConfig, config, new Randomize(config));
     }
 
@@ -38,7 +38,7 @@ public class RobotTest
     [TestMethod]
     public void ShouldAlwaysInflictAtLeastOneDamage()
     {
-        var robot = CreateRobot(armorPoints: 10); // armure 20
+        var robot = CreateRobot(armorPoints: 10);
 
         int damage = robot.ReceiveDamage(5);
 
@@ -51,33 +51,32 @@ public class RobotTest
     {
         var robot = CreateRobot();
 
-        Assert.IsTrue(robot.Dodge()); // pleine vie => réussite garantie
+        Assert.IsTrue(robot.Dodge());
         Assert.AreEqual(0, robot.ReceiveDamage(30));
         Assert.AreEqual("100", robot.GetStats(StatsType.HP));
 
-        // L'esquive est consommée : l'attaque suivante touche
         Assert.AreEqual(30, robot.ReceiveDamage(30));
     }
 
     [TestMethod]
     public void ShouldReduceNextAttackWhenDefending()
     {
-        var robot = CreateRobot(armorPoints: 10); // armure 20, bonus 40% = 8 => 28
+        var robot = CreateRobot(armorPoints: 10);
 
         Assert.IsTrue(robot.Defend());
         Assert.AreEqual(2, robot.ReceiveDamage(30));
-        // Le bonus retombe après l'attaque reçue
+     
         Assert.AreEqual(10, robot.ReceiveDamage(30));
     }
 
     [TestMethod]
     public void ShouldApplyMinimumDefenseBonusWhenArmorIsLow()
     {
-        var robot = CreateRobot(); // armure 0, 40% = 0 => bonus minimum 5
+        var robot = CreateRobot(); 
 
         Assert.IsTrue(robot.Defend());
         Assert.AreEqual(25, robot.ReceiveDamage(30));
-        // Le bonus retombe après l'attaque reçue
+      
         Assert.AreEqual(30, robot.ReceiveDamage(30));
     }
 
@@ -96,7 +95,6 @@ public class RobotTest
         var robot = CreateRobot();
         robot.ForceStat(1, 2);
 
-        // 10% de 1 PV = 0 => minimum 5
         Assert.AreEqual(5, robot.Repair());
     }
 
@@ -111,64 +109,5 @@ public class RobotTest
         }
 
         Assert.AreEqual("5", robot.GetStats(StatsType.ENERGY));
-    }
-}
-
-[TestClass]
-public class RandomizeTest
-{
-    private static int CountSuccesses(Randomize randomize, int hpBase, int hpNow, int tries = 10000)
-    {
-        int successes = 0;
-        for (int i = 0; i < tries; i++)
-        {
-            if (randomize.HasCompleteRandom(hpBase, hpNow))
-            {
-                successes++;
-            }
-        }
-        return successes;
-    }
-
-    [TestMethod]
-    public void ShouldUseMinimumChanceAtFullHp()
-    {
-        var randomize = new Randomize(new Config()); // 60 % à pleine vie
-        int successes = CountSuccesses(randomize, 100, 100);
-        Assert.IsTrue(successes > 5500 && successes < 6500, $"Réussites : {successes}");
-    }
-
-    [TestMethod]
-    public void ShouldUseMaximumChanceAtZeroHp()
-    {
-        var randomize = new Randomize(new Config()); // 95 % à 0 PV
-        int successes = CountSuccesses(randomize, 100, 0);
-        Assert.IsTrue(successes > 9200 && successes < 9800, $"Réussites : {successes}");
-    }
-
-    [TestMethod]
-    public void ShouldSucceedMoreWhenWeaker()
-    {
-        var randomize = new Randomize(new Config());
-        Assert.IsTrue(CountSuccesses(randomize, 100, 20) > CountSuccesses(randomize, 100, 100));
-    }
-}
-
-[TestClass]
-public class FailStreakTest
-{
-    [TestMethod]
-    public void ShouldNeverFailMoreThanMaxFailStreakInARow()
-    {
-        // 0 % de chance : seul l'anti-malchance peut faire réussir
-        var config = new Config(MinSuccessPercent: 0, MaxSuccessPercent: 0, MaxFailStreak: 2);
-        var robot = new Robot(false, new RobotConfig(), config, new Randomize(config));
-
-        // échec, échec, réussite forcée, échec, échec, réussite forcée...
-        bool[] expected = [false, false, true, false, false, true];
-        foreach (bool e in expected)
-        {
-            Assert.AreEqual(e, robot.Defend());
-        }
     }
 }

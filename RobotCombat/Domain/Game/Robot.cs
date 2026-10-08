@@ -185,20 +185,12 @@ namespace RobotCombat.Domain.Game
         /// </summary>
         private bool HasCompleted()
         {
-            // Anti-malchance : après MaxFailStreak échecs d'affilée, l'action réussit forcément
-            bool completed = failStreak >= config.MaxFailStreak
-                          || randomize.HasCompleteRandom(MaxHp, GetStat(StatsType.HP).CurrentValue);
+            bool completed = failStreak >= config.MaxFailStreak  || randomize.HasCompleteRandom(MaxHp, GetStat(StatsType.HP).CurrentValue);
 
             failStreak = completed ? 0 : failStreak + 1;
             return completed;
         }
 
-        
-
-        private void ResetDodging()
-        {
-            isDodging = false;
-        }
 
         private void ResetDefend()
         {
