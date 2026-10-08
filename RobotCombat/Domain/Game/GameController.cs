@@ -29,24 +29,45 @@ namespace RobotCombat.Domain.Game
         /**
          * Démarre la partie de jeu, envoie un message de bienvenue si l'utilisateur est l'hôte et soumet la configuration locale.
          */
-        public async Task StartGame()
+        public async Task<bool> StartGame()
         {
+            if (!IsHost)
+            {
+                return await JoinGame();
+            }
+
             if (!socket.IsConnected())
             {
                 await socket.Start();
-                if (IsHost)
-                {
-                    await Send(MessageType.WELCOME, null, "Hôte");
-                } else
-                {
-                    await Send(MessageType.PLAYER_JOIN, null, "");
-                }
+                await Send(MessageType.WELCOME, null, "Hôte");
+            }
+            await AskLocalConfig();
+            return true;
+        }
+
+        /**
+         * Client : connexion au serveur (étape « Connexion » du diagramme de séquence).
+         * Envoie JOIN puis attend la réponse du serveur : WELCOME (accepté) ou SERVER_BUSY (refusé).
+         * @return true si le serveur a accepté le client, false dans le cas contraire.
+         */
+        public async Task<bool> JoinGame()
+        {
+            await socket.Start();
+            await Send(MessageType.PLAYER_JOIN, null, "");
+
+            string? raw = await socket.Receive();
+            Message? answer = raw == null ? null : MessageHelper.ParseMessage(raw);
+
+            if (answer?.Type != MessageType.WELCOME)
+            {
+                socket.Exit();
+                view.ShowMessage("Le serveur est occupé : une partie est déjà en cours.");
+                return false;
             }
 
-            if (IsHost)
-            {
-                await AskLocalConfig();
-            }
+            view.ShowMessage($"Connecté à {answer.Data} !\n");
+            await AskLocalConfig();
+            return true;
         }
 
         /**

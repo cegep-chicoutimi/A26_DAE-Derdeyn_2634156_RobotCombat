@@ -5,6 +5,7 @@ using RobotCombat.Domain.Communication.Transfer;
 using RobotCombat.Domain.Game;
 using RobotCombat.Views;
 using Serilog;
+using Serilog.Core;
 
 var gameConfig = new Config();
 var consoleGameView = new ConsoleView(gameConfig);
@@ -30,11 +31,11 @@ else
 {
     var hostInfo = consoleGameView.AskPlayerHostInformations();
     socket = new SocketClient(hostInfo[0], int.Parse(hostInfo[1]));
-    await socket.Send(MessageHelper.BuildMessage(MessageType.PLAYER_JOIN, null, GameStatus.WAITING_FOR_HOST_CONFIG, ""));
 }
 
-bool keepRunning = true;
 
+bool keepRunning = true;
+// Boucle principale permettant à l'hôte de relancer des parties en boucle
 do
 {
     var commandMenu = new CommandMenu();
@@ -58,7 +59,10 @@ do
     try
     {
         consoleGameView.ShowMessage(isHost ? "En attente d'un adversaire..." : "Connexion à l'hôte...");
-        await gameController.StartGame();
+        if (!await gameController.StartGame())
+        {
+            continue; // client refusé (serveur occupé) : le finally ferme le socket et termine l'application
+        }
         var listenTask = gameController.Listen();
 
 
@@ -68,10 +72,11 @@ do
             await Task.Delay(200);
         }
 
-        // Si la tâche d'écoute a échoué, afficher le message d'erreur
+        // Si la tâche d'écoute a échoué, afficher un message (pas d'exception brute à l'écran)
         if (listenTask.IsFaulted)
         {
-            consoleGameView.ShowMessage($"Erreur d'écoute : {listenTask.Exception?.InnerException?.Message}");
+            Log.Error(listenTask.Exception, "Erreur d'écoute");
+            consoleGameView.ShowMessage("Connexion perdue avec l'hôte.");
         }
 
         bool replay;
@@ -174,7 +179,6 @@ do
     {
         if (!isHost)
         {
-            Console.ReadKey();
             socket.Exit();
             keepRunning = false;
         }

@@ -12,7 +12,6 @@ namespace RobotCombat.Domain.Communication
     public class SocketClient(string ipAddress, int port) : ISocket
     {
         private static readonly ILogger Logger = Log.ForContext<SocketClient>();
-        private static string BusyMessage = MessageHelper.BuildMessage(MessageType.SERVER_BUSY, null, GameStatus.WAITING_FOR_PLAYER, "");
         private ConnectionHandler? connection;
 
         /**
@@ -27,7 +26,16 @@ namespace RobotCombat.Domain.Communication
                 
             }
             Logger.Debug($">> Envoi vers le serveur: {message}");
-            await connection.SendMessage(message);
+            try
+            {
+                await connection.SendMessage(message);
+            }
+            catch (Exception ex)
+            {
+                // Le serveur a coupé la connexion
+                Logger.Warning(ex, "Envoi impossible, connexion fermée par le serveur");
+                Exit();
+            }
         }
         /**
          * Reçoit un message du serveur via le socket.
@@ -40,7 +48,18 @@ namespace RobotCombat.Domain.Communication
                 return null;
             }
 
-            string? message = await connection.ReceiveMessage();
+            string? message;
+            try
+            {
+                message = await connection.ReceiveMessage();
+            }
+            catch (Exception ex)
+            {
+                // Le serveur a coupé la connexion
+                Logger.Warning(ex, "Connexion fermée par le serveur");
+                Exit();
+                return null;
+            }
 
             if (message == null)
             {
@@ -49,15 +68,6 @@ namespace RobotCombat.Domain.Communication
             }
 
             Logger.Debug($"<< Message reçu : {message}");
-
-            if (message == BusyMessage)
-            {
-                Logger.Warning("Le serveur est full, fermeture de la connexion");
-                connection.Dispose();
-                connection = null;
-                return null;
-            }
-
             return message;
         }
         /**
