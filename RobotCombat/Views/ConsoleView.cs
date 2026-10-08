@@ -119,8 +119,6 @@ namespace RobotCombat.Views
             }
         }
 
-
-
         private int AskPoints(string target, ref int remainingPoints)
         {
             Console.Write($"Combien de points voulez-vous attribuer {target} ? ");
@@ -133,8 +131,6 @@ namespace RobotCombat.Views
             Console.WriteLine("Nombre de points invalide.");
             return 0;
         }
-
-
 
         public string[] AskPlayerHostInformations()
         {
@@ -194,7 +190,6 @@ namespace RobotCombat.Views
             var isHost = AskYesOrNo(message);
             return isHost ? "HOST" : "PLAYER";
         }
-
         public void ShowMessage(string message)
         {
             Console.WriteLine(message);
@@ -218,7 +213,6 @@ namespace RobotCombat.Views
             Console.WriteLine($"DEF {config.BaseArmor + robotConfig.ArmorPoints * config.ArmorPerPoint}");
             Console.WriteLine($"ATT {config.BaseDamage + robotConfig.DamagePoints * config.DamagePerPoint}");
         }
-
 
         public void DisplayFight(Robot localRobot, Robot remoteRobot)
         {
@@ -247,7 +241,6 @@ namespace RobotCombat.Views
             Console.WriteLine($"2 - Points de défense (DEF) : +{config.ArmorPerPoint} par point dépensé");
             Console.WriteLine($"3 - Points d'attaque (ATT) : +{config.DamagePerPoint} par point dépensé");
         }
-
 
         private static bool AskYesOrNo(string[] messages)
         {

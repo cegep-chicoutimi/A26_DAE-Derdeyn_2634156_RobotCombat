@@ -5,9 +5,22 @@ using RobotCombat.Domain.Communication.Transfer;
 using RobotCombat.Domain.Game;
 using RobotCombat.Views;
 using Serilog;
-using Serilog.Core;
+using System.Net.Sockets;
 
-var gameConfig = new Config();
+var ipAddress = "127.0.0.1";
+try
+{
+    using var ipSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    ipSocket.Connect("8.8.8.8", 8888);
+    ipAddress = ((System.Net.IPEndPoint)ipSocket.LocalEndPoint).Address.ToString();
+}
+catch (SocketException)
+{
+    Console.WriteLine("Impossible de déterminer l'adresse IP locale. Veuillez vérifier votre connexion réseau. Utilisation de l'ip locale "+ipAddress);
+    return;
+}
+
+var gameConfig = new Config(IpAddress: ipAddress);
 var consoleGameView = new ConsoleView(gameConfig);
 var randomize = new Randomize(gameConfig);
 var isHost = consoleGameView.AskPlayerType().Equals("HOST");
@@ -58,10 +71,10 @@ do
     
     try
     {
-        consoleGameView.ShowMessage(isHost ? "En attente d'un adversaire..." : "Connexion à l'hôte...");
+        consoleGameView.ShowMessage(isHost ? "Vos informations sont :\nIP: " + gameConfig.IpAddress + "\nPort: "+gameConfig.Port+ "\nEn attente d'un adversaire..." : "Connexion à l'hôte...");
         if (!await gameController.StartGame())
         {
-            continue; // client refusé (serveur occupé) : le finally ferme le socket et termine l'application
+            continue; // client refusé (SERVEUR_BUSY)
         }
         var listenTask = gameController.Listen();
 
@@ -72,7 +85,7 @@ do
             await Task.Delay(200);
         }
 
-        // Si la tâche d'écoute a échoué, afficher un message (pas d'exception brute à l'écran)
+        // Si la tâche d'écoute a échoué, afficher un message d'erreur
         if (listenTask.IsFaulted)
         {
             Log.Error(listenTask.Exception, "Erreur d'écoute");
@@ -119,7 +132,6 @@ do
                 }
                 else
                 { // joueur externe
-                  // ENVOYER FIN DE PARTIE AU JOUEUR
                     // demander au joueur s'il souhaite rejouer
                     replay = consoleGameView.AskPlayerReplay();
 

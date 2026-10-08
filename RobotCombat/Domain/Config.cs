@@ -5,7 +5,7 @@
     /// </summary>
     public record Config(
         int Port = 3000,
-        string IpAddress = "192.168.2.173", // affichage uniquement
+        string IpAddress = "127.0.0.1", // affichage uniquement
         int MaxPlayers = 1,
         int PointsToGive = 10,
         int BaseEnergy = 2,
@@ -24,9 +24,9 @@
         int LuckToEscapePercent = 15,
         int RepairPercent = 10,
         int RepairMinHp = 5,
-        int MinSuccessPercent = 60,   // chance de réussite à pleine vie
-        int MaxSuccessPercent = 95,   // chance de réussite presque mort
-        int MaxFailStreak = 2         // après 2 échecs d'affilée, l'action suivante réussit forcément
+        int MinSuccessPercent = 60,
+        int MaxSuccessPercent = 95,
+        int MaxFailStreak = 2
     )
     {
     }
