@@ -37,7 +37,7 @@ namespace RobotCombat.Domain.Game
 
                 GameAction.RECHARGE => "Rechargement de l'énergie",
 
-                GameAction.REPAIR => completed ? $"Réparation : +{value} PV" : "Réparation ratée",
+                GameAction.REPAIR => completed ? $"Réparation réussie" : "Réparation ratée",
 
                 GameAction.DODGE => completed ? "Esquive prête : la prochaine attaque sera évitée" : "Esquive ratée",
 
