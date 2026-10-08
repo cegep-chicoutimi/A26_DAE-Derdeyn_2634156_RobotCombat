@@ -5,9 +5,9 @@ using System.Text;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * START Commande pour gérer le démarrage de la partie.
-     */
+    /// <summary>
+    /// START Commande pour gérer le démarrage de la partie.
+    /// </summary>
     public class StartHandler(IGameView view) : ICommand
     {
         public void Handle(Message message)

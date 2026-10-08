@@ -7,28 +7,28 @@ using System.Text;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * Classe qui gère l'association entre les types de messages et leurs commandes correspondantes.
-     */
+    /// <summary>
+    /// Classe qui gère l'association entre les types de messages et leurs commandes correspondantes.
+    /// </summary>
     public class CommandMenu
     {
         private readonly Dictionary<MessageType, ICommand> handlers = [];
 
-        /**
-         * Ajoute un gestionnaire pour un type de message spécifique.
-         * @param messageType Le type de message à gérer.
-         * @param command La commande à exécuter pour ce type de message.
-         */
+        /// <summary>
+        /// Ajoute un gestionnaire pour un type de message spécifique.
+        /// </summary>
+        /// <param name="messageType">Le type de message à gérer.</param>
+        /// <param name="command">La commande à exécuter pour ce type de message.</param>
         public void AddHandler(MessageType messageType, ICommand command)
         {
             handlers[messageType] = command;
         }
 
-        /**
-         * Exécute la commande associée au type de message reçu.
-         * @param message Le message à traiter.
-         * @throws Exception Si aucun gestionnaire n'est trouvé pour le type de message.
-         */
+        /// <summary>
+        /// Exécute la commande associée au type de message reçu.
+        /// </summary>
+        /// <param name="message">Le message à traiter.</param>
+        /// <exception cref="Exception">Si aucun gestionnaire n'est trouvé pour le type de message.</exception>
         public void Execute(Message message)
         {
             if (handlers.TryGetValue(message.Type, out var handler))

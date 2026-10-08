@@ -1,9 +1,9 @@
 namespace RobotCombat.Domain.Game
 {
-    /**
-      * Représente un robot dans le jeu.
-      * Contient les statistiques du robot et les actions qu'il peut effectuer.
-      */
+    /// <summary>
+    /// Représente un robot dans le jeu.
+    /// Contient les statistiques du robot et les actions qu'il peut effectuer.
+    /// </summary>
     public class Robot(bool isHost, RobotConfig robotConfig, Config config, Randomize randomize)
     {
         public readonly bool IsHost = isHost;
@@ -18,19 +18,19 @@ namespace RobotCombat.Domain.Game
 
         private int MaxHp => config.BaseHp + robotConfig.HpPoints * config.HpPerPoint;
 
-        /**
-         * Vérifie si le robot est encore en vie
-         * @return true si le robot est vivant sinon false
-         */
+        /// <summary>
+        /// Vérifie si le robot est encore en vie
+        /// </summary>
+        /// <returns>true si le robot est vivant sinon false</returns>
         public bool IsAlive()
         {
             return GetStat(StatsType.HP).CurrentValue > 0;
         }
 
-        /**
-         * Effectue une attaque normale et retourne les dégâts infligés.
-         * @return Les dégâts infligés par l'attaque ou -1 si l'attaque a échoué.
-         */
+        /// <summary>
+        /// Effectue une attaque normale et retourne les dégâts infligés.
+        /// </summary>
+        /// <returns>Les dégâts infligés par l'attaque ou -1 si l'attaque a échoué.</returns>
         public int Attack()
         {
             if (!HasCompleted())
@@ -41,17 +41,17 @@ namespace RobotCombat.Domain.Game
             return GetStat(StatsType.ATTACK).CurrentValue;
         }
 
-        /**
-        * Vérifie si une attaque puissante est possible.
-        * @return Vrai si l'attaque puissante est possible d'être effectuée, sinon false.
-        */
+        /// <summary>
+        /// Vérifie si une attaque puissante est possible.
+        /// </summary>
+        /// <returns>Vrai si l'attaque puissante est possible d'être effectuée, sinon false.</returns>
         public bool CanAttackWithPower() => GetStat(StatsType.ENERGY).CurrentValue >= config.PowerDamageEnergyCost;
 
-        /**
-         * Effectue une attaque puissante (coûte de l'énergie, dégâts multipliés).
-         * @return Les dégâts bruts de l'attaque, ou -1 si l'attaque a échoué.
-         * @throws InvalidOperationException si l'énergie est insuffisante.
-         */
+        /// <summary>
+        /// Effectue une attaque puissante (coûte de l'énergie, dégâts multipliés).
+        /// </summary>
+        /// <returns>Les dégâts bruts de l'attaque, ou -1 si l'attaque a échoué.</returns>
+        /// <exception cref="InvalidOperationException">si l'énergie est insuffisante.</exception>
         public int AttackWithPower()
         {
             if (!CanAttackWithPower())
@@ -67,18 +67,18 @@ namespace RobotCombat.Domain.Game
             return GetStat(StatsType.ATTACK).CurrentValue * config.PowerDamageMultiplier;
         }
 
-        /**
-         * Recharge l'énergie du robot.
-         */
+        /// <summary>
+        /// Recharge l'énergie du robot.
+        /// </summary>
         public void Recharge()
         {
             GetStat(StatsType.ENERGY).Increase(config.RechargeEnergyGain, config.MaxEnergy);
         }
 
-        /**
-         * Active le bonus de défense pour la prochaine attaque reçue.
-         * @return true si la défense a réussi, sinon false.
-         */
+        /// <summary>
+        /// Active le bonus de défense pour la prochaine attaque reçue.
+        /// </summary>
+        /// <returns>true si la défense a réussi, sinon false.</returns>
         public bool Defend()
         {
             if (!HasCompleted())
@@ -89,10 +89,10 @@ namespace RobotCombat.Domain.Game
             return true;
         }
 
-        /**
-         * Tente de réparer le robot (pourcentage des PV actuels, avec un minimum), sans dépasser les PV max.
-         * @return Le nombre de PV réellement récupérés, ou -1 si la réparation a échoué.
-         */
+        /// <summary>
+        /// Tente de réparer le robot (pourcentage des PV actuels, avec un minimum), sans dépasser les PV max.
+        /// </summary>
+        /// <returns>Le nombre de PV réellement récupérés, ou -1 si la réparation a échoué.</returns>
         public int Repair()
         {
             if (!HasCompleted())
@@ -106,10 +106,10 @@ namespace RobotCombat.Domain.Game
             return hp.CurrentValue - before;
         }
 
-        /**
-         * Tente de préparer une esquive : si elle réussit, la prochaine attaque reçue est évitée.
-         * @return true si l'esquive est prête, sinon false.
-         */
+        /// <summary>
+        /// Tente de préparer une esquive : si elle réussit, la prochaine attaque reçue est évitée.
+        /// </summary>
+        /// <returns>true si l'esquive est prête, sinon false.</returns>
         public bool Dodge()
         {
             if (!HasCompleted())
@@ -120,21 +120,21 @@ namespace RobotCombat.Domain.Game
             return true;
         }
 
-        /**
-         * Tente de fuir le combat (chance fixe définie dans la config).
-         * @return true si la fuite a réussi (fin de partie sans gagnant), sinon false.
-         */
+        /// <summary>
+        /// Tente de fuir le combat (chance fixe définie dans la config).
+        /// </summary>
+        /// <returns>true si la fuite a réussi (fin de partie sans gagnant), sinon false.</returns>
         public bool Escape()
         {
             return randomize.RandomEscape();
         }
 
-        /**
-         * Inflige des dégâts au robot en tenant compte de son armure, de son bonus de défense et de son esquive.
-         * Le bonus de défense et l'esquive retombent dès qu'une attaque est reçue.
-         * @param damage Les dégâts bruts à infliger.
-         * @return Les dégâts effectivement infligés (0 si l'attaque a été esquivée).
-         */
+        /// <summary>
+        /// Inflige des dégâts au robot en tenant compte de son armure, de son bonus de défense et de son esquive.
+        /// Le bonus de défense et l'esquive retombent dès qu'une attaque est reçue.
+        /// </summary>
+        /// <param name="damage">Les dégâts bruts à infliger.</param>
+        /// <returns>Les dégâts effectivement infligés (0 si l'attaque a été esquivée).</returns>
         public int ReceiveDamage(int damage)
         {
             if (isDodging)
@@ -156,19 +156,19 @@ namespace RobotCombat.Domain.Game
             return actualDamage;
         }
 
-        /**
-         * Retourne une statistique précise actuelle du robot sous forme de chaîne de caractères.
-         * @param type Le type de statistique à récupérer.
-         * @return La valeur actuelle de la statistique sous forme de chaîne.
-         */
+        /// <summary>
+        /// Retourne une statistique précise actuelle du robot sous forme de chaîne de caractères.
+        /// </summary>
+        /// <param name="type">Le type de statistique à récupérer.</param>
+        /// <returns>La valeur actuelle de la statistique sous forme de chaîne.</returns>
         public string GetStats(StatsType type)
         {
             return GetStat(type).CurrentValue.ToString();
         }
 
-        /**
-         * Recopie les PV et l'énergie envoyés par le serveur.
-         */
+        /// <summary>
+        /// Recopie les PV et l'énergie envoyés par le serveur.
+        /// </summary>
         public void ForceStat(int hp, int energy)
         {
             GetStat(StatsType.HP).CurrentValue = hp;
@@ -180,9 +180,9 @@ namespace RobotCombat.Domain.Game
             return stats.First(s => s.Type == type);
         }
 
-        /**
-         * Détermine si l'action réussit : plus le robot est affaibli, plus il a de chances de réussir.
-         */
+        /// <summary>
+        /// Détermine si l'action réussit : plus le robot est affaibli, plus il a de chances de réussir.
+        /// </summary>
         private bool HasCompleted()
         {
             // Anti-malchance : après MaxFailStreak échecs d'affilée, l'action réussit forcément

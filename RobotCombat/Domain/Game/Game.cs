@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace RobotCombat.Domain.Game
 {
-    /**
-     * Représente une partie de combat entre deux robots.
-     * Gère l'état de la partie, les actions des joueurs et le tour actuel.
-     */
+    /// <summary>
+    /// Représente une partie de combat entre deux robots.
+    /// Gère l'état de la partie, les actions des joueurs et le tour actuel.
+    /// </summary>
     public class Game
     {
         private readonly string id;
@@ -28,9 +28,9 @@ namespace RobotCombat.Domain.Game
             status = GameStatus.WAITING_FOR_PLAYER_CONFIG;
             currentPlayer = 0; // L'hote commence toujours la partie
         }
-        /**
-         * Démarre la partie
-         */
+        /// <summary>
+        /// Démarre la partie
+        /// </summary>
         public void StartGame()
         {
             status = GameStatus.PLAYING;
@@ -38,14 +38,13 @@ namespace RobotCombat.Domain.Game
             escaped = false;
         }
 
-        /**
-         * Applique l'action du joueur actuel (sur lui-même ou sur le robot adverse).
-         * Met à jour l'état de la partie et change le tour si nécessaire.
-         * @param action L'action à appliquer.
-         * @param actionCompleted true si l'action a réussi (false si ratée à cause du hasard).
-         * @return Dégâts infligés (attaques) ou PV récupérés (réparation), 0 sinon,
-         *         ou -1 si l'action est refusée (énergie insuffisante : le tour n'est pas consommé).
-         */
+        /// <summary>
+        /// Applique l'action du joueur actuel (sur lui-même ou sur le robot adverse).
+        /// Met à jour l'état de la partie et change le tour si nécessaire.
+        /// </summary>
+        /// <param name="action">L'action à appliquer.</param>
+        /// <param name="actionCompleted">true si l'action a réussi (false si ratée à cause du hasard).</param>
+        /// <returns>Dégâts infligés (attaques) ou PV récupérés (réparation), 0 sinon, ou -1 si l'action est refusée (énergie insuffisante : le tour n'est pas consommé).</returns>
         public int ApplyAction(GameAction action, out bool actionCompleted)
         {
             var attacker = CurrentRobot;
@@ -108,18 +107,18 @@ namespace RobotCombat.Domain.Game
             return completed ? defender.ReceiveDamage(rawDamage) : 0;
         }
 
-        /**
-         * Termine la partie suite à une fuite réussie : aucun gagnant.
-         */
+        /// <summary>
+        /// Termine la partie suite à une fuite réussie : aucun gagnant.
+        /// </summary>
         public void EndByEscape()
         {
             escaped = true;
             status = GameStatus.END_GAME;
         }
 
-        /**
-         * Recopie l'état calculé par le serveur, sans aucun calcul de combat.
-         */
+        /// <summary>
+        /// Recopie l'état calculé par le serveur, sans aucun calcul de combat.
+        /// </summary>
         public void CopyState(int hpHost, int hpClient, int energyHost, int energyClient)
         {
             robots[0].ForceStat(hpHost, energyHost);
@@ -131,19 +130,19 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Vérifie si la partie est terminée (un robot détruit ou une fuite réussie).
-         * @return true si la partie est terminée, false sinon.
-         */
+        /// <summary>
+        /// Vérifie si la partie est terminée (un robot détruit ou une fuite réussie).
+        /// </summary>
+        /// <returns>true si la partie est terminée, false sinon.</returns>
         public bool CheckGameEnded()
         {
             return escaped || robots.Any(r => !r.IsAlive());
         }
 
-        /**
-         * Retourne le gagnant de la partie, si la partie est terminée.
-         * @return Le robot gagnant, ou null si la partie n'est pas terminée ou s'est terminée par une fuite.
-         */
+        /// <summary>
+        /// Retourne le gagnant de la partie, si la partie est terminée.
+        /// </summary>
+        /// <returns>Le robot gagnant, ou null si la partie n'est pas terminée ou s'est terminée par une fuite.</returns>
         public Robot? GetWinner()
         {
             if (escaped || !CheckGameEnded())

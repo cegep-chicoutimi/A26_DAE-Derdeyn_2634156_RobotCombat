@@ -5,10 +5,10 @@ using System.Text;
 
 namespace RobotCombat.Domain.Communication.Transfer
 {
-    /**
-     * Représente un message échangé entre le client et le serveur.
-     * Contient le type de message, l'action du robot associée , les données du message et le statut de la partie.
-     */
+    /// <summary>
+    /// Représente un message échangé entre le client et le serveur.
+    /// Contient le type de message, l'action du robot associée , les données du message et le statut de la partie.
+    /// </summary>
     public record Message
     {
         public MessageType Type { get; init; }

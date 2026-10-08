@@ -4,9 +4,9 @@ using System.Text;
 
 namespace RobotCombat.Domain.Game
 {
-    /**
-     * Représente les différents types de statistiques d'un robot.
-     */
+    /// <summary>
+    /// Représente les différents types de statistiques d'un robot.
+    /// </summary>
     public enum StatsType
     {
         HP,

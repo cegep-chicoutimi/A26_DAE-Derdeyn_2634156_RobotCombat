@@ -1,8 +1,8 @@
 namespace RobotCombat.Domain.Game
 {
-    /**
-     * Représente les différentes actions possibles dans le jeu par un robot
-     */
+    /// <summary>
+    /// Représente les différentes actions possibles dans le jeu par un robot
+    /// </summary>
     public enum GameAction
     {
         ATTACK,
@@ -17,13 +17,13 @@ namespace RobotCombat.Domain.Game
     {
 
 
-        /**
-         * Fournit une description du résultat d'une action de jeu.
-         * @param action L'action effectuée.
-         * @param completed true si l'action a réussi (actionCompleted).
-         * @param value Dégâts infligés (attaques) ou PV récupérés (réparation).
-         * @return Une chaîne de caractères décrivant le résultat de l'action.
-         */
+        /// <summary>
+        /// Fournit une description du résultat d'une action de jeu.
+        /// </summary>
+        /// <param name="action">L'action effectuée.</param>
+        /// <param name="completed">true si l'action a réussi (actionCompleted).</param>
+        /// <param name="value">Dégâts infligés (attaques) ou PV récupérés (réparation).</param>
+        /// <returns>Une chaîne de caractères décrivant le résultat de l'action.</returns>
         public static string ResultOfAction(this GameAction action, bool completed, int value)
         {
             return action switch
@@ -48,11 +48,11 @@ namespace RobotCombat.Domain.Game
 
         }
 
-        /**
-       * Libellé lisible d'une action (affichage du menu).
-       * NB : une extension nommée ToString n'est jamais appelée (Enum.ToString est prioritaire),
-       * d'où le nom ToLabel.
-       */
+        /// <summary>
+        /// Libellé lisible d'une action (affichage du menu).
+        /// NB : une extension nommée ToString n'est jamais appelée (Enum.ToString est prioritaire),
+        /// d'où le nom ToLabel.
+        /// </summary>
         public static string ToLabel(this GameAction action)
         {
             return action switch

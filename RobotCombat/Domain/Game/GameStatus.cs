@@ -4,9 +4,9 @@ using System.Text;
 
 namespace RobotCombat.Domain.Game
 {
-    /**
-     * Représente les différents statuts possibles d'une partie de jeu.
-     */
+    /// <summary>
+    /// Représente les différents statuts possibles d'une partie de jeu.
+    /// </summary>
     public enum GameStatus
     {
         WAITING_FOR_PLAYER,

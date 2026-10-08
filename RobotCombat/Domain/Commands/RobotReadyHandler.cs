@@ -3,9 +3,9 @@ using RobotCombat.Domain.Game;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * ROBOT Commande pour gérer la configuration du robot d'un joueur.
-     */
+    /// <summary>
+    /// ROBOT Commande pour gérer la configuration du robot d'un joueur.
+    /// </summary>
     public class RobotReadyHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)

@@ -6,17 +6,17 @@ using System.Net.Sockets;
 
 namespace RobotCombat.Domain.Communication
 {
-    /**
-     * Classe représentant un client socket pour la communication avec un serveur.
-     */
+    /// <summary>
+    /// Classe représentant un client socket pour la communication avec un serveur.
+    /// </summary>
     public class SocketClient(string ipAddress, int port) : ISocket
     {
         private static readonly ILogger Logger = Log.ForContext<SocketClient>();
         private ConnectionHandler? connection;
 
-        /**
-         * Envoie un message au serveur via le socket.
-         */
+        /// <summary>
+        /// Envoie un message au serveur via le socket.
+        /// </summary>
         public async Task Send(string message)
         {
             if (connection == null)
@@ -37,9 +37,9 @@ namespace RobotCombat.Domain.Communication
                 Exit();
             }
         }
-        /**
-         * Reçoit un message du serveur via le socket.
-         */
+        /// <summary>
+        /// Reçoit un message du serveur via le socket.
+        /// </summary>
         public async Task<string?> Receive()
         {
             if (connection == null)
@@ -70,9 +70,9 @@ namespace RobotCombat.Domain.Communication
             Logger.Debug($"<< Message reçu : {message}");
             return message;
         }
-        /**
-         * Ferme la connexion avec le serveur.
-         */
+        /// <summary>
+        /// Ferme la connexion avec le serveur.
+        /// </summary>
         public void Exit()
         {
             Logger.Information($"Fermeture du socket demandé (connexion active : {connection != null})");
@@ -83,18 +83,18 @@ namespace RobotCombat.Domain.Communication
             }
 
         }
-        /**
-         * Démarre la connexion avec le serveur.
-         */
+        /// <summary>
+        /// Démarre la connexion avec le serveur.
+        /// </summary>
         public Task Start() => ConnectToServer();
 
-        /**
-         * Vérifie si le client est connecté au serveur.
-         */
+        /// <summary>
+        /// Vérifie si le client est connecté au serveur.
+        /// </summary>
         public bool IsConnected() => connection?.IsConnected() ?? false;
-        /**
-         * Établit une connexion avec le serveur.
-         */
+        /// <summary>
+        /// Établit une connexion avec le serveur.
+        /// </summary>
         private async Task ConnectToServer()
         {
             IPEndPoint remoteEndPoint = new(IPAddress.Parse(ipAddress), port);

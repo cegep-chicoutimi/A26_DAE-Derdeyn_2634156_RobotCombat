@@ -4,9 +4,9 @@ using RobotCombat.Domain.Communication.Transfer;
 
 namespace RobotCombat.Domain.Game
 {
-    /**
-     * Contrôleur principal du jeu, gère la logique de jeu et la communication entre les joueurs.
-     */
+    /// <summary>
+    /// Contrôleur principal du jeu, gère la logique de jeu et la communication entre les joueurs.
+    /// </summary>
     public class GameController(bool isHost, Config config, IGameView view, CommandMenu menu, ISocket socket, Randomize randomize)
     {
         public bool IsHost { get; } = isHost;
@@ -26,9 +26,9 @@ namespace RobotCombat.Domain.Game
 
         public GameStatus GetGameStatus() => CurrentGame?.Status ?? GameStatus.WAITING_FOR_PLAYER;
 
-        /**
-         * Démarre la partie de jeu, envoie un message de bienvenue si l'utilisateur est l'hôte et soumet la configuration locale.
-         */
+        /// <summary>
+        /// Démarre la partie de jeu, envoie un message de bienvenue si l'utilisateur est l'hôte et soumet la configuration locale.
+        /// </summary>
         public async Task<bool> StartGame()
         {
             if (!IsHost)
@@ -45,11 +45,11 @@ namespace RobotCombat.Domain.Game
             return true;
         }
 
-        /**
-         * Client : connexion au serveur (étape « Connexion » du diagramme de séquence).
-         * Envoie JOIN puis attend la réponse du serveur : WELCOME (accepté) ou SERVER_BUSY (refusé).
-         * @return true si le serveur a accepté le client, false dans le cas contraire.
-         */
+        /// <summary>
+        /// Client : connexion au serveur (étape « Connexion » du diagramme de séquence).
+        /// Envoie JOIN puis attend la réponse du serveur : WELCOME (accepté) ou SERVER_BUSY (refusé).
+        /// </summary>
+        /// <returns>true si le serveur a accepté le client, false dans le cas contraire.</returns>
         public async Task<bool> JoinGame()
         {
             await socket.Start();
@@ -70,14 +70,14 @@ namespace RobotCombat.Domain.Game
             return true;
         }
 
-        /**
-         * Déconnecte le socket actuel de la partie.
-         */
+        /// <summary>
+        /// Déconnecte le socket actuel de la partie.
+        /// </summary>
         public void Disconnect() => socket.Exit();
 
-        /**
-         * Soumet la configuration locale du joueur et l'envoie à l'adversaire.
-         */
+        /// <summary>
+        /// Soumet la configuration locale du joueur et l'envoie à l'adversaire.
+        /// </summary>
         public async Task AskLocalConfig()
         {
             RobotConfig localConfig = view.AskPlayerConfig();
@@ -99,9 +99,9 @@ namespace RobotCombat.Domain.Game
             await Send(MessageType.ROBOT_CONFIG, null, $"{localConfig.HpPoints};{localConfig.ArmorPoints};{localConfig.DamagePoints}");
         }
 
-        /**
-         * Configurer le robot du joueur et créer une nouvelle partie si les deux configurations sont disponibles.
-         */
+        /// <summary>
+        /// Configurer le robot du joueur et créer une nouvelle partie si les deux configurations sont disponibles.
+        /// </summary>
         public async Task HandleClientConfig(RobotConfig? robotConfig)
         {
 
@@ -115,9 +115,9 @@ namespace RobotCombat.Domain.Game
             ConfigurePlayer(robotConfig);
         }
 
-        /**
-         * Configure le robot de l'hôte et crée une nouvelle partie si les deux configurations sont disponibles.
-         */
+        /// <summary>
+        /// Configure le robot de l'hôte et crée une nouvelle partie si les deux configurations sont disponibles.
+        /// </summary>
         public void ConfigureHost(RobotConfig hostConfig)
         {
 
@@ -127,9 +127,9 @@ namespace RobotCombat.Domain.Game
 
         }
 
-        /**
-         * Configure le robot du joueur et crée une nouvelle partie si les deux configurations sont disponibles.
-         */
+        /// <summary>
+        /// Configure le robot du joueur et crée une nouvelle partie si les deux configurations sont disponibles.
+        /// </summary>
         public void ConfigurePlayer(RobotConfig playerConfig)
         {
             ResetIfEnded();
@@ -138,9 +138,9 @@ namespace RobotCombat.Domain.Game
 
         }
 
-        /**
-         * Réinitialise la partie si elle est terminée
-         */
+        /// <summary>
+        /// Réinitialise la partie si elle est terminée
+        /// </summary>
         private void ResetIfEnded()
         {
             if (CurrentGame != null && CurrentGame.Status == GameStatus.END_GAME)
@@ -152,9 +152,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Crée une nouvelle partie si les deux configurations sont disponibles
-         */
+        /// <summary>
+        /// Crée une nouvelle partie si les deux configurations sont disponibles
+        /// </summary>
         public void CreateGame()
         {
             if (CurrentGame == null && _hostRobotConfig != null && _playerRobotConfig != null)
@@ -172,18 +172,18 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Envoie un message START
-         */
+        /// <summary>
+        /// Envoie un message START
+        /// </summary>
         private async Task StartHostGame()
         {
             await Send(MessageType.GAME_START, null, BuildStateData());
             await SendTurn();
         }
 
-        /**
-         * Nouvelle partie sur la même connexion
-         */
+        /// <summary>
+        /// Nouvelle partie sur la même connexion
+        /// </summary>
         public async Task Replay()
         {
             OpponentWantsReplay = false;
@@ -195,14 +195,14 @@ namespace RobotCombat.Domain.Game
 
         public bool OpponentWantsReplay { get; private set; }
 
-        /**
-         * L'adversaire a accepté de rejouer
-         */
+        /// <summary>
+        /// L'adversaire a accepté de rejouer
+        /// </summary>
         public void OnOpponentReplay() => OpponentWantsReplay = true;
 
-        /**
-         * Action choisie par le joueur LOCAL
-         */
+        /// <summary>
+        /// Action choisie par le joueur LOCAL
+        /// </summary>
         public async Task ExecuteActionAsync(GameAction action)
         {
             if (CurrentGame == null)
@@ -233,9 +233,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         *  Action reçue du client
-         */
+        /// <summary>
+        ///  Action reçue du client
+        /// </summary>
         public async Task HandleClientActionAsync(GameAction action)
         {
             if (!IsHost || CurrentGame == null || CurrentGame.Status != GameStatus.PLAYING || CurrentGame.CurrentRobot.IsHost)
@@ -250,9 +250,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Résolution d'une action, exécutée par le serveur pour les 2 joueurs.
-         */
+        /// <summary>
+        /// Résolution d'une action, exécutée par le serveur pour les 2 joueurs.
+        /// </summary>
         private async Task<bool> ResolveAction(GameAction action)
         {
             Game game = CurrentGame!;
@@ -275,9 +275,9 @@ namespace RobotCombat.Domain.Game
             return true;
         }
 
-        /**
-         * Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
-         */
+        /// <summary>
+        /// Annonce à qui est le tour : TURN;HOTE ou TURN;CLIENT.
+        /// </summary>
         private async Task SendTurn()
         {
             bool hostTurn = CurrentGame!.CurrentRobot.IsHost;
@@ -293,9 +293,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Démarre la partie avec l'état envoyé par le serveur.
-         */
+        /// <summary>
+        /// Démarre la partie avec l'état envoyé par le serveur.
+        /// </summary>
         public void ApplyServerStart(string data)
         {
             var hostRobot = new Robot(true, new RobotConfig(), config, randomize);
@@ -308,9 +308,9 @@ namespace RobotCombat.Domain.Game
             DisplayFight();
         }
 
-        /**
-         * Annonce à qui est le tour de jouer
-         */
+        /// <summary>
+        /// Annonce à qui est le tour de jouer
+        /// </summary>
         public void ApplyServerTurn(string data)
         {
             if (data == TurnName(false))
@@ -323,9 +323,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Action refusée par le serveur, le tour n'est pas consommé.
-         */
+        /// <summary>
+        /// Action refusée par le serveur, le tour n'est pas consommé.
+        /// </summary>
         public void ApplyServerError(string data)
         {
             if (data == "INVALID_ACTION")
@@ -344,9 +344,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Recopier les stats du combat envoyées par le serveur et afficher le résultat de l'action.
-         */
+        /// <summary>
+        /// Recopier les stats du combat envoyées par le serveur et afficher le résultat de l'action.
+        /// </summary>
         public void ApplyServerResult(GameAction action, string data)
         {
             if (CurrentGame == null)
@@ -368,9 +368,9 @@ namespace RobotCombat.Domain.Game
             ShowActionResult(hostActed, action, actionCompleted, value);
         }
 
-        /**
-         * Affiche le combat et le résultat d'une action et le gagnant si la partie est finie.
-         */
+        /// <summary>
+        /// Affiche le combat et le résultat d'une action et le gagnant si la partie est finie.
+        /// </summary>
         private void ShowActionResult(bool hostActed, GameAction action, bool actionCompleted, int value)
         {
             bool isMine = hostActed == IsHost;
@@ -379,9 +379,9 @@ namespace RobotCombat.Domain.Game
             _ = ShowWinnerIfEnded();
         }
 
-        /**
-         * État de la partie
-         */
+        /// <summary>
+        /// État de la partie
+        /// </summary>
         private string BuildStateData()
         {
             Robot host = CurrentGame!.robots[0];
@@ -397,9 +397,9 @@ namespace RobotCombat.Domain.Game
 
         private const string NO_WINNER = "AUCUN";
 
-        /**
-         * Affiche le gagnant si la partie est terminée.
-         */
+        /// <summary>
+        /// Affiche le gagnant si la partie est terminée.
+        /// </summary>
         public async Task ShowWinnerIfEnded()
         {
             if (CurrentGame != null && CurrentGame.Status == GameStatus.END_GAME)
@@ -445,9 +445,9 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Affiche les statistiques du combat entre les deux robots.
-         */
+        /// <summary>
+        /// Affiche les statistiques du combat entre les deux robots.
+        /// </summary>
         public void DisplayFight()
         {
             if (CurrentGame != null)
@@ -458,15 +458,15 @@ namespace RobotCombat.Domain.Game
             }
         }
 
-        /**
-         * Envoie un message à l'adversaire
-         */
+        /// <summary>
+        /// Envoie un message à l'adversaire
+        /// </summary>
         public Task Send(MessageType type, GameAction? action, string data) =>
             socket.Send(MessageHelper.BuildMessage(type, action, GetGameStatus(), data));
 
-        /**
-         * Écoute les messages entrants du socket et les traite.
-         */
+        /// <summary>
+        /// Écoute les messages entrants du socket et les traite.
+        /// </summary>
         public async Task Listen()
         {
             string? raw;
@@ -475,9 +475,9 @@ namespace RobotCombat.Domain.Game
                 OnMessageReceived(MessageHelper.ParseMessage(raw));
             }
         }
-        /**
-         * Traite un message reçu du socket.
-         */
+        /// <summary>
+        /// Traite un message reçu du socket.
+        /// </summary>
         private void OnMessageReceived(Message message) => menu.Execute(message);
     }
 }

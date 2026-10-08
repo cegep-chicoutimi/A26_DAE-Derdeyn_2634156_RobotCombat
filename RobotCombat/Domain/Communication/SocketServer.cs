@@ -13,9 +13,9 @@ namespace RobotCombat.Domain.Communication
         private ConnectionHandler? connection;
         private bool disposed = false;
         private  bool isClientConnected = false;
-        /**
-         *  Démarre le serveur et attend qu'un client se connecte.
-         */
+        /// <summary>
+        ///  Démarre le serveur et attend qu'un client se connecte.
+        /// </summary>
         public async Task Start()
         {
             if (listener == null)
@@ -39,9 +39,9 @@ namespace RobotCombat.Domain.Communication
             disposed = false;
         }
 
-        /**
-         * Attend qu'un client se connecte.
-         */
+        /// <summary>
+        /// Attend qu'un client se connecte.
+        /// </summary>
         public async Task WaitForClient()
         {
             while (isRunning && !isClientConnected)
@@ -50,9 +50,9 @@ namespace RobotCombat.Domain.Communication
             }
         }
 
-        /**
-         * Accepte les connexions en continu.
-         */
+        /// <summary>
+        /// Accepte les connexions en continu.
+        /// </summary>
         private async Task AcceptLoop()
         {
             while (isRunning && listener != null)
@@ -90,9 +90,9 @@ namespace RobotCombat.Domain.Communication
             }
         }
 
-        /**
-         * Réception des messages du client.
-         */
+        /// <summary>
+        /// Réception des messages du client.
+        /// </summary>
         public async Task<string?> Receive()
         {
             if (connection == null)
@@ -131,9 +131,9 @@ namespace RobotCombat.Domain.Communication
 
             return message;
         }
-        /**
-         * Ferme le serveur et libère les ressources.
-         */
+        /// <summary>
+        /// Ferme le serveur et libère les ressources.
+        /// </summary>
         public void Exit()
         {
             if (disposed)
@@ -153,9 +153,9 @@ namespace RobotCombat.Domain.Communication
             disposed = true;
         }
 
-        /**
-         * Envoie un message au client connecté.
-         */
+        /// <summary>
+        /// Envoie un message au client connecté.
+        /// </summary>
         public async Task Send(string message)
         {
             Logger.Debug($">> Message envoyé : {message}");
@@ -167,9 +167,9 @@ namespace RobotCombat.Domain.Communication
                 Logger.Warning("Envoi ignoré, aucune connexion active : {Message}", message);
             }
         }
-        /**
-         * Vérifie si un client est connecté.
-         */
+        /// <summary>
+        /// Vérifie si un client est connecté.
+        /// </summary>
         public bool IsConnected() => isClientConnected;
     }
 }

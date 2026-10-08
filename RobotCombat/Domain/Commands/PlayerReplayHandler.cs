@@ -4,9 +4,9 @@ using RobotCombat.Domain.Game;
 namespace RobotCombat.Domain.Commands
 {
 
-    /**
-     * REPLAY Commande pour gérer la demande de rejouer d'un joueur.
-     */
+    /// <summary>
+    /// REPLAY Commande pour gérer la demande de rejouer d'un joueur.
+    /// </summary>
     public class PlayerReplayHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)

@@ -3,9 +3,9 @@ using RobotCombat.Domain.Game;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * QUIT Commande pour gérer la déconnexion d'un joueur.
-     */
+    /// <summary>
+    /// QUIT Commande pour gérer la déconnexion d'un joueur.
+    /// </summary>
     public class QuitHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)

@@ -5,22 +5,22 @@ using System.Text;
 
 namespace RobotCombat.Domain.Communication
 {
-    /**
-     * Classe responsable de la gestion de la connexion réseau avec le serveur
-     */
+    /// <summary>
+    /// Classe responsable de la gestion de la connexion réseau avec le serveur
+    /// </summary>
     public class ConnectionHandler(Socket socket) : IDisposable
     {
         private static readonly ILogger Logger = Log.ForContext<SocketClient>();
         private const string Eom = "<|EOM|>";
         private bool stopped = false;
 
-        /**
-         * Vérifie si la connexion est toujours active
-         */
+        /// <summary>
+        /// Vérifie si la connexion est toujours active
+        /// </summary>
         public bool IsConnected() => !stopped && socket.Connected;
-        /**
-         * Envoie un message au serveur, en ajoutant le marqueur de fin de message (EOM)
-         */
+        /// <summary>
+        /// Envoie un message au serveur, en ajoutant le marqueur de fin de message (EOM)
+        /// </summary>
 
         public async Task SendMessage(string message)
         {
@@ -50,9 +50,9 @@ namespace RobotCombat.Domain.Communication
         private readonly StringBuilder pending = new();
         private readonly Decoder decoder = Encoding.UTF8.GetDecoder();
 
-        /**
-         * Réception des messages du serveur, en attente de la fin du message (EOM)
-         */
+        /// <summary>
+        /// Réception des messages du serveur, en attente de la fin du message (EOM)
+        /// </summary>
         public async Task<string?> ReceiveMessage()
         {
             var buffer = new byte[4096];
@@ -97,9 +97,9 @@ namespace RobotCombat.Domain.Communication
             return message;
         }
 
-        /**
-         * Libère les ressources utilisées
-         */
+        /// <summary>
+        /// Libère les ressources utilisées
+        /// </summary>
         public void Dispose()
         {
             if (stopped)

@@ -4,9 +4,9 @@
 
     namespace RobotCombat.Domain.Communication.Transfer
     {
-    /**
-     * Enumération représentant les différents types de messages échangés entre le client et le serveur.
-     */
+    /// <summary>
+    /// Enumération représentant les différents types de messages échangés entre le client et le serveur.
+    /// </summary>
     public enum MessageType
     {
         PLAYER_JOIN,

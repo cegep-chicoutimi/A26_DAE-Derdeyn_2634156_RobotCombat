@@ -61,7 +61,7 @@ namespace RobotCombat.Views
 
             do
             {
-                // Console.Clear(); // todo
+                Console.Clear();
                 DisplayRobotConfig(robotConfig);
 
                 if (remainingPoints > 0)

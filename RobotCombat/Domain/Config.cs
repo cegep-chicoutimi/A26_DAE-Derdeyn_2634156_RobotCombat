@@ -1,8 +1,8 @@
 ﻿namespace RobotCombat.Domain
 {
-    /**
-     * Représente la configuration du jeu.
-     */
+    /// <summary>
+    /// Représente la configuration du jeu.
+    /// </summary>
     public record Config(
         int Port = 3000,
         string IpAddress = "192.168.2.173", // affichage uniquement

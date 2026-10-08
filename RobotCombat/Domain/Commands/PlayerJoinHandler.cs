@@ -3,9 +3,9 @@ using RobotCombat.Domain.Game;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * WELCOME Commande pour gérer la connexion d'un joueur.
-     */
+    /// <summary>
+    /// WELCOME Commande pour gérer la connexion d'un joueur.
+    /// </summary>
     public class PlayerJoinHandler(GameController controller, IGameView view) : ICommand
     {
         

@@ -4,30 +4,30 @@ using System.Text;
 
 namespace RobotCombat.Domain.Communication
 {
-    /**
-     * Interface représentant un socket de communication.
-     */
+    /// <summary>
+    /// Interface représentant un socket de communication.
+    /// </summary>
     public interface ISocket
     {
-        /**
-         * Démarrer la connexion
-         */
+        /// <summary>
+        /// Démarrer la connexion
+        /// </summary>
         Task Start();
-        /**
-         * Envoyer un message via le socket
-         */
+        /// <summary>
+        /// Envoyer un message via le socket
+        /// </summary>
         public Task Send(string message);
-        /**
-         * Recevoir un message via le socket
-         */
+        /// <summary>
+        /// Recevoir un message via le socket
+        /// </summary>
         public Task<string?> Receive();
-        /**
-         * Fermer la connexion
-         */
+        /// <summary>
+        /// Fermer la connexion
+        /// </summary>
         public void Exit();
-        /**
-         * Vérifier si le socket est connecté
-         */
+        /// <summary>
+        /// Vérifier si le socket est connecté
+        /// </summary>
         public bool IsConnected();
     }
 }

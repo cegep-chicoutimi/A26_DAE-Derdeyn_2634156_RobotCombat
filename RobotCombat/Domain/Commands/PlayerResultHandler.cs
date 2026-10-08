@@ -3,9 +3,9 @@ using RobotCombat.Domain.Game;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * RESULT Commande pour gérer les résultats des actions du joueur.
-     */
+    /// <summary>
+    /// RESULT Commande pour gérer les résultats des actions du joueur.
+    /// </summary>
     public class PlayerResultHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)

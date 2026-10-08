@@ -6,51 +6,51 @@ using System.Text;
 
 namespace RobotCombat.Domain
 {
-    /**
-     * Interface représentant la vue du jeu, permettant d'interagir avec le joueur.
-     */
+    /// <summary>
+    /// Interface représentant la vue du jeu, permettant d'interagir avec le joueur.
+    /// </summary>
     public interface IGameView
     {
-        /**
-         * Demander si le joueur souhaite rejoindre ou créer une partie
-         */
+        /// <summary>
+        /// Demander si le joueur souhaite rejoindre ou créer une partie
+        /// </summary>
         public string AskPlayerType();
 
-        /**
-         * Demander la configuration de l'hôte (IP et port)
-         */
+        /// <summary>
+        /// Demander la configuration de l'hôte (IP et port)
+        /// </summary>
         public string[] AskPlayerHostInformations();
 
-        /**
-         * Afficher un message à l'utilisateur
-         */
+        /// <summary>
+        /// Afficher un message à l'utilisateur
+        /// </summary>
         public void ShowMessage(string message);
-        /**
-         * Afficher le gagnant de la partie (null = aucun gagnant, fin par fuite)
-         */
+        /// <summary>
+        /// Afficher le gagnant de la partie (null = aucun gagnant, fin par fuite)
+        /// </summary>
         public void ShowWinner(Robot? robot);
-        /**
-         * Demander la configuration du robot du joueur
-         */
+        /// <summary>
+        /// Demander la configuration du robot du joueur
+        /// </summary>
         public RobotConfig AskPlayerConfig();
 
-        /**
-         * Demander l'action du robot à effectuer pour le tour en cours
-         */
+        /// <summary>
+        /// Demander l'action du robot à effectuer pour le tour en cours
+        /// </summary>
         public GameAction AskPlayerAction();
-        /**
-         * Afficher les statistiques de la partie en cours
-         */
+        /// <summary>
+        /// Afficher les statistiques de la partie en cours
+        /// </summary>
         public void DisplayFight(Robot localRobot, Robot remoteRobot);
 
-        /**
-         * Demander au joueur s'il souhaite rejouer
-         */
+        /// <summary>
+        /// Demander au joueur s'il souhaite rejouer
+        /// </summary>
         public Boolean AskPlayerReplay();
 
-        /**
-         * Demander le port d'exécution de l'application de l'hôte
-         */
+        /// <summary>
+        /// Demander le port d'exécution de l'application de l'hôte
+        /// </summary>
         public int AskHostPortInformation();
     }
 }

@@ -3,9 +3,9 @@ using RobotCombat.Domain.Game;
 
 namespace RobotCombat.Domain.Commands
 {
-    /**
-     * ACTION : le client a choisi une action.
-     */
+    /// <summary>
+    /// ACTION : le client a choisi une action.
+    /// </summary>
     public class PlayerActionHandler(GameController controller, IGameView view) : ICommand
     {
         public void Handle(Message message)

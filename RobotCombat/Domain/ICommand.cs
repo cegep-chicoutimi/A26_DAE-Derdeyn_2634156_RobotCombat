@@ -6,15 +6,15 @@ using System.Text;
 
 namespace RobotCombat.Domain
 {
-    /**
-     * Interface représentant une commande pouvant être exécutée en réponse à un message reçu.
-     */
+    /// <summary>
+    /// Interface représentant une commande pouvant être exécutée en réponse à un message reçu.
+    /// </summary>
     public interface ICommand
     {
-        /**
-         * Gère le message reçu en exécutant la commande correspondante.
-         * @param message Le message à traiter.
-         */
+        /// <summary>
+        /// Gère le message reçu en exécutant la commande correspondante.
+        /// </summary>
+        /// <param name="message">Le message à traiter.</param>
         public void Handle(Message message);
     }
 }
