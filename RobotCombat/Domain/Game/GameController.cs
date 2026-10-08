@@ -120,11 +120,9 @@ namespace RobotCombat.Domain.Game
         /// </summary>
         public void ConfigureHost(RobotConfig hostConfig)
         {
-
             ResetIfEnded();
             _hostRobotConfig = hostConfig;
             CreateGame();
-
         }
 
         /// <summary>
@@ -135,7 +133,6 @@ namespace RobotCombat.Domain.Game
             ResetIfEnded();
             _playerRobotConfig = playerConfig;
             CreateGame();
-
         }
 
         /// <summary>
