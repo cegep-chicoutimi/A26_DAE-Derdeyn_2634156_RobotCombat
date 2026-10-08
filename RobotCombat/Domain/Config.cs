@@ -12,7 +12,7 @@
         int MaxEnergy = 5,
         int PowerDamageEnergyCost = 2,
         int PowerDamageMultiplier = 2,
-        int RechargeEnergyGain = 1,
+        int RechargeEnergyGain = 2,
         int BaseHp = 100,
         int BaseArmor = 0,
         int BaseDamage = 10,
@@ -24,9 +24,12 @@
         int LuckToEscapePercent = 15,
         int RepairPercent = 10,
         int RepairMinHp = 5,
+
         int MinSuccessPercent = 60,
         int MaxSuccessPercent = 95,
-        int MaxFailStreak = 2
+        int MaxFailStreak = 2,
+        int RepairEnergyCost = 1,
+        int DodgeCostEnergy =1
     )
     {
     }

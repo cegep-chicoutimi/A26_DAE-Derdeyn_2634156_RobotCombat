@@ -72,11 +72,19 @@ namespace RobotCombat.Domain.Game
                     actionCompleted = true;
                     break;
                 case GameAction.REPAIR:
+                    if (!attacker.CanRepair())
+                    {
+                        return -1; // énergie insuffisante : tour non consommé
+                    }
                     int repaired = attacker.Repair();
                     actionCompleted = repaired >= 0;
                     result = Math.Max(0, repaired);
                     break;
                 case GameAction.DODGE:
+                    if (!attacker.CanDodge())
+                    {
+                        return -1; // énergie insuffisante : tour non consommé
+                    }
                     actionCompleted = attacker.Dodge();
                     break;
                 case GameAction.ESCAPE:

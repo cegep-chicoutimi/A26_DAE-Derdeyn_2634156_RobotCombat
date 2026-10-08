@@ -47,6 +47,10 @@ namespace RobotCombat.Domain.Game
         /// <returns>Vrai si l'attaque puissante est possible d'être effectuée, sinon false.</returns>
         public bool CanAttackWithPower() => GetStat(StatsType.ENERGY).CurrentValue >= config.PowerDamageEnergyCost;
 
+        public bool CanRepair() => GetStat(StatsType.ENERGY).CurrentValue >= config.RepairEnergyCost;
+        public bool CanDodge() => GetStat(StatsType.ENERGY).CurrentValue >= config.DodgeCostEnergy;
+        
+
         /// <summary>
         /// Effectue une attaque puissante (coûte de l'énergie, dégâts multipliés).
         /// </summary>
@@ -95,11 +99,17 @@ namespace RobotCombat.Domain.Game
         /// <returns>Le nombre de PV réellement récupérés, ou -1 si la réparation a échoué.</returns>
         public int Repair()
         {
+            if (!CanRepair())
+            {
+                throw new InvalidOperationException("Énergie insuffisante pour une attaque puissante.");
+            }
             if (!HasCompleted())
             {
                 return -1;
             }
             Stats hp = GetStat(StatsType.HP);
+            Stats energy = GetStat(StatsType.ENERGY);
+            energy.Decrease(config.RepairEnergyCost);
             int before = hp.CurrentValue;
             int repairAmount = Math.Max(config.RepairMinHp, before * config.RepairPercent / 100);
             hp.Increase(repairAmount, MaxHp);
@@ -112,6 +122,10 @@ namespace RobotCombat.Domain.Game
         /// <returns>true si l'esquive est prête, sinon false.</returns>
         public bool Dodge()
         {
+            if (!CanDodge())
+            {
+                throw new InvalidOperationException("Énergie insuffisante pour une esquiver.");
+            }
             if (!HasCompleted())
             {
                 return false;
