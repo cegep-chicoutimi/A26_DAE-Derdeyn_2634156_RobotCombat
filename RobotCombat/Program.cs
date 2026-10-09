@@ -71,7 +71,7 @@ do
     
     try
     {
-        consoleGameView.ShowMessage(isHost ? "Vos informations sont :\nIP: " + gameConfig.IpAddress + "\nPort: "+gameConfig.Port+ "\nEn attente d'un adversaire..." : "Connexion à l'hôte...");
+        consoleGameView.ShowMessage(isHost ? "Votre addrese IP: " + gameConfig.IpAddress + "\nEn attente d'un adversaire..." : "Connexion à l'hôte...");
         if (!await gameController.StartGame())
         {
             continue; // client refusé (SERVEUR_BUSY)
