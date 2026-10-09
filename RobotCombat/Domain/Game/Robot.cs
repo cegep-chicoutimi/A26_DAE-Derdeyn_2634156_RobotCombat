@@ -130,6 +130,7 @@ namespace RobotCombat.Domain.Game
             {
                 return false;
             }
+            GetStat(StatsType.ENERGY).Decrease(config.DodgeCostEnergy);
             isDodging = true;
             return true;
         }
